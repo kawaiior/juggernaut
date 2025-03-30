@@ -1,5 +1,8 @@
 package github.kawaiior.juggernaut.game;
 
+/**
+ * 用于存储游戏中的数据
+ */
 public class PlayerGameData {
 
     private boolean juggernaut = false;

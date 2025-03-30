@@ -57,6 +57,10 @@ public class JuggernautServer {
         this.juggernautPlayer = null;
     }
 
+    /**
+     * 玩家收到伤害时触发
+     * 将受到的伤害数值存储到玩家数据中
+     */
     public void onPlayerHurt(ServerPlayerEntity attacker, ServerPlayerEntity player, float amount) {
         Juggernaut.debug("玩家 " + player.getName().getString() + " 受到伤害 " + amount);
         if (attacker != null) {
@@ -67,6 +71,11 @@ public class JuggernautServer {
         playerData.playerBearDamage(amount);
     }
 
+    /**
+     * 玩家死亡时触发
+     * 更新玩家数据，重置玩家生命值并将玩家传送到随机出生点
+     * 如果玩家是 Juggernaut，则将 Juggernaut 身份转移到击杀者身上
+     */
     public void onPlayerDeath(ServerPlayerEntity killer, ServerPlayerEntity player) {
         Juggernaut.debug("玩家 " + player.getName().getString() + " 死亡");
         // TODO: 网络发包，通知客户端玩家死亡
@@ -117,6 +126,9 @@ public class JuggernautServer {
         player.moveForced(READY_HOME_POS.getX(), READY_HOME_POS.getY(), READY_HOME_POS.getZ());
     }
 
+    /**
+     * 将 Juggernaut 身份转移到击杀者身上
+     */
     public void juggernautTransfer(ServerPlayerEntity juggernaut, ServerPlayerEntity killer) {
         PlayerGameData juggernautData = GAME_PLAYER_MAP.get(juggernaut);
         juggernautData.setJuggernaut(false);
@@ -127,6 +139,9 @@ public class JuggernautServer {
         Juggernaut.debug("玩家 " + juggernaut.getName().getString() + " 被玩家 " + killer.getName().getString() + " 杀死，Juggernaut已转移");
     }
 
+    /**
+     * 从玩家列表中随机选择一个作为 Juggernaut
+     */
     public void choiceJuggernaut() {
         // 从GAME_PLAYER_MAP中随机挑选一个Player
         ServerPlayerEntity player = GAME_PLAYER_MAP.keySet().stream()
@@ -143,6 +158,11 @@ public class JuggernautServer {
         // TODO: 网络发包，通知玩家Juggernaut已选择
     }
 
+    /**
+     * 刷新玩家列表
+     * 同时，如果检测到 Juggernaut 不存在，则重新选择 Juggernaut
+     * 如果玩家列表为空，则游戏结束
+     */
     public void updatePlayers(ServerWorld world) {
         // 遍历MAP，如果玩家不在指定维度，则剔除
         GAME_PLAYER_MAP.forEach((player, obj) -> {
@@ -195,6 +215,10 @@ public class JuggernautServer {
         Juggernaut.debug("当前游戏状态：" + this.start);
     }
 
+    /**
+     * 玩家加入游戏
+     * 如果游戏已经开始，则将玩家传送到随机出生点
+     */
     public void playerJoinGame(ServerPlayerEntity player) {
         GAME_PLAYER_MAP.put(player, new PlayerGameData());
         // 如果游戏已经开始
@@ -203,6 +227,9 @@ public class JuggernautServer {
         }
     }
 
+    /**
+     * 服务端游戏帧
+     */
     public void tick(ServerWorld world){
         long gameTime = world.getGameTime();
         if (gameTime % 20 == 0) {

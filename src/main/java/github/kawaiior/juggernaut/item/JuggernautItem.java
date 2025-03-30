@@ -1,6 +1,7 @@
 package github.kawaiior.juggernaut.item;
 
 import github.kawaiior.juggernaut.Juggernaut;
+import github.kawaiior.juggernaut.game.JuggernautServer;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
 import github.kawaiior.juggernaut.world.dimension.JuggernautTeleporter;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
@@ -18,6 +19,10 @@ public class JuggernautItem extends Item {
         super(new Properties().group(JuggernautItemGroup.JUGGERNAUT_GROUP));
     }
 
+    /**
+     * 玩家持有此物品右键点击时触发
+     * 将玩家传送到 JUGGERNAUT_DIM 维度
+     */
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (world.isRemote){
@@ -43,7 +48,7 @@ public class JuggernautItem extends Item {
         }
 
         Juggernaut.debug("Teleporting player to " + serverWorld.getDimensionKey().getLocation());
-        player.changeDimension(serverWorld, new JuggernautTeleporter(player.getPosition(), flag));
+        player.changeDimension(serverWorld, new JuggernautTeleporter(JuggernautServer.READY_HOME_POS, flag));
 
         return super.onItemRightClick(world, player, hand);
     }

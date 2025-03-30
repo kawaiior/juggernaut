@@ -14,6 +14,10 @@ public class JuggernautReadyItem extends Item {
         super(new Properties().group(JuggernautItemGroup.JUGGERNAUT_GROUP));
     }
 
+    /**
+     * 玩家持有此物品右键时触发
+     * 右键后开始游戏
+     */
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand) {
         if (world.isRemote){
