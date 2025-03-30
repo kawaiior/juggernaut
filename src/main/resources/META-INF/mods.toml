@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="MIT"
+[[mods]]
+modId="juggernaut"
+version="${file.jarVersion}"
+displayName="Juggernaut Mod"
+logoFile="juggernaut.png"
+credits="Thanks for this example mod goes to Java"
+authors="kawaiior"
+description='''Nothing'''
+[[dependencies.juggernaut]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE"
+    side="BOTH"
+# Here's another dependency
+[[dependencies.juggernaut]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5,1.17)"
+    ordering="NONE"
+    side="BOTH"

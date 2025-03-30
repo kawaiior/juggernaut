@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "asoulworld:block/ore/soul_ore_block_a"
+  }
+}
