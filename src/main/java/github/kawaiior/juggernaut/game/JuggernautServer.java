@@ -112,7 +112,7 @@ public class JuggernautServer {
             // 更新计分板
             killerData.killPlayer();
             if (data.isJuggernaut()) {
-                this.juggernautTransfer(player, player);
+                this.juggernautTransfer(player, killer);
             }
         }else {
             if (data.isJuggernaut()){
