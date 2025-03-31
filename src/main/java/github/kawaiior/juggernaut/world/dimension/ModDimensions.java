@@ -2,8 +2,8 @@ package github.kawaiior.juggernaut.world.dimension;
 
 import github.kawaiior.juggernaut.Juggernaut;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
 public class ModDimensions {

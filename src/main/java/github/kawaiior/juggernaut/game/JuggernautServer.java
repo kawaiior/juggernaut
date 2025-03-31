@@ -1,9 +1,13 @@
 package github.kawaiior.juggernaut.game;
 
 import github.kawaiior.juggernaut.Juggernaut;
+import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
+import github.kawaiior.juggernaut.network.packet.DeathBoardMsgPacket;
+import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Map;
@@ -58,7 +62,7 @@ public class JuggernautServer {
     }
 
     /**
-     * 玩家收到伤害时触发
+     * 玩家受到伤害时触发
      * 将受到的伤害数值存储到玩家数据中
      */
     public void onPlayerHurt(ServerPlayerEntity attacker, ServerPlayerEntity player, float amount) {
@@ -79,6 +83,12 @@ public class JuggernautServer {
     public void onPlayerDeath(ServerPlayerEntity killer, ServerPlayerEntity player) {
         Juggernaut.debug("玩家 " + player.getName().getString() + " 死亡");
         // TODO: 网络发包，通知客户端玩家死亡
+        if (killer == null){
+            this.sendPacketToAllPlayers(new DeathBoardMsgPacket("玩家 " + player.getName().getString() + " 死于意外"));
+        }else {
+            this.sendPacketToAllPlayers(new DeathBoardMsgPacket("玩家 " + player.getName().getString() + " 被 " + killer.getName().getString() + " 击杀"));
+        }
+
         PlayerGameData data = GAME_PLAYER_MAP.get(player);
         // 更新计分板
         data.playerDeath();
@@ -101,6 +111,7 @@ public class JuggernautServer {
     }
 
     private void teleportAllPlayer2ReadyHome() {
+        // TODO
         GAME_PLAYER_MAP.forEach((player, obj) -> this.teleportPlayerToReadyHome(player));
     }
 
@@ -115,10 +126,12 @@ public class JuggernautServer {
     }
 
     public void teleportPlayerToRandomSpawn(ServerPlayerEntity player) {
+        // TODO
         player.moveForced(SPAWN_POS.getX(), SPAWN_POS.getY(), SPAWN_POS.getZ());
     }
 
     public void teleportJuggernautToRandomSpawn(ServerPlayerEntity player) {
+        // TODO
         player.moveForced(JUGGERNAUT_POS.getX(), JUGGERNAUT_POS.getY(), JUGGERNAUT_POS.getZ());
     }
 
@@ -135,6 +148,8 @@ public class JuggernautServer {
         PlayerGameData killerData = GAME_PLAYER_MAP.get(killer);
         killerData.setJuggernaut(true);
         this.juggernautPlayer = killer;
+        JuggernautUtil.setJuggernautAttribute(killer);
+        JuggernautUtil.removeJuggernautAttribute(juggernaut);
         // TODO: 网络发包，通知玩家Juggernaut已转移
         Juggernaut.debug("玩家 " + juggernaut.getName().getString() + " 被玩家 " + killer.getName().getString() + " 杀死，Juggernaut已转移");
     }
@@ -155,6 +170,7 @@ public class JuggernautServer {
         this.juggernautPlayer = player;
         PlayerGameData data = GAME_PLAYER_MAP.get(player);
         data.setJuggernaut(true);
+        JuggernautUtil.setJuggernautAttribute(player);
         // TODO: 网络发包，通知玩家Juggernaut已选择
     }
 
@@ -221,6 +237,7 @@ public class JuggernautServer {
      */
     public void playerJoinGame(ServerPlayerEntity player) {
         GAME_PLAYER_MAP.put(player, new PlayerGameData());
+        // TODO: 通过mixin修改玩家饱食度tick逻辑
         // 如果游戏已经开始
         if (this.start) {
             this.teleportPlayerToRandomSpawn(player);
@@ -250,5 +267,12 @@ public class JuggernautServer {
 
     public boolean isStart() {
         return start;
+    }
+
+    /**
+     * 向此维度的所有玩家发送packet
+     */
+    public <T> void sendPacketToAllPlayers(T packet) {
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null), packet);
     }
 }
