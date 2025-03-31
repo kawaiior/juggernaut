@@ -1,7 +1,7 @@
 {
   "type": "juggernaut:juggernaut_dim",
   "generator": {
-    "type": "minecraft:noise",
+    "type": "juggernaut:juggernaut_chunk",
     "seed": -2048856837,
     "settings": "minecraft:overworld",
     "biome_source": {

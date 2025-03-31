@@ -2,6 +2,7 @@ package github.kawaiior.juggernaut;
 
 import github.kawaiior.juggernaut.init.ItemInit;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
+import github.kawaiior.juggernaut.world.dimension.ModDimensions;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -25,6 +26,10 @@ public class Juggernaut
 
     public void onCommonSetUp(FMLCommonSetupEvent event){
         NetworkRegistryHandler.registerMessage();
+
+        event.enqueueWork(() -> {
+            ModDimensions.register();
+        });
     }
 
     public static void debug(Object o){

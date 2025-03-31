@@ -27,7 +27,7 @@ public class HudClientEvent {
         // 渲染击杀板
         DeathBoardGui deathBoard = new DeathBoardGui(event.getMatrixStack());
         deathBoard.render();
-
+        // 渲染生命值与护甲值
         HealthUIRender healthUIRender = new HealthUIRender(event.getMatrixStack());
         healthUIRender.render();
     }

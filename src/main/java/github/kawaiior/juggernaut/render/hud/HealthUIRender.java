@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 
 import static github.kawaiior.juggernaut.capability.ShieldPower.SHIELD_DATA;
 
@@ -61,7 +62,7 @@ public class HealthUIRender extends AbstractGui {
 
         matrixStack.pop();
 
-        drawString(matrixStack, minecraft.fontRenderer, String.valueOf((int) (player.getHealth())), 105, this.height-15, 0xFFFFFF);
+        drawString(matrixStack, minecraft.fontRenderer, String.valueOf(MathHelper.ceil(player.getHealth())), 105, this.height-15, 0xFFFFFF);
         drawString(matrixStack, minecraft.fontRenderer, String.valueOf(shield), 105, this.height-25, 0xCA7DF8);
     }
 }
