@@ -2,6 +2,8 @@ package github.kawaiior.juggernaut.network;
 
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.network.packet.DeathBoardMsgPacket;
+import github.kawaiior.juggernaut.network.packet.SyncAllPlayerShieldPacket;
+import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
@@ -22,6 +24,10 @@ public class NetworkRegistryHandler {
 
         INSTANCE.registerMessage(nextID(), DeathBoardMsgPacket.class, DeathBoardMsgPacket::encode,
                 DeathBoardMsgPacket::decode, DeathBoardMsgPacket::handlePacket);
+        INSTANCE.registerMessage(nextID(), SyncShieldPacket.class, SyncShieldPacket::encode,
+                SyncShieldPacket::decode, SyncShieldPacket::handlePacket);
+        INSTANCE.registerMessage(nextID(), SyncAllPlayerShieldPacket.class, SyncAllPlayerShieldPacket::encode,
+                SyncAllPlayerShieldPacket::decode, SyncAllPlayerShieldPacket::handlePacket);
 
 //        INSTANCE.registerMessage(nextID(), PlayerLeftClickPacket.class, PlayerLeftClickPacket::encode,
 //                PlayerLeftClickPacket::decode, PlayerLeftClickPacket::handlePacket);

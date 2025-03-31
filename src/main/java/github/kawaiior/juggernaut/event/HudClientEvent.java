@@ -1,6 +1,7 @@
 package github.kawaiior.juggernaut.event;
 
 import github.kawaiior.juggernaut.render.hud.DeathBoardGui;
+import github.kawaiior.juggernaut.render.hud.HealthUIRender;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -26,6 +27,9 @@ public class HudClientEvent {
         // 渲染击杀板
         DeathBoardGui deathBoard = new DeathBoardGui(event.getMatrixStack());
         deathBoard.render();
+
+        HealthUIRender healthUIRender = new HealthUIRender(event.getMatrixStack());
+        healthUIRender.render();
     }
 
 }

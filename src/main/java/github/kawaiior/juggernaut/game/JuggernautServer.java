@@ -148,8 +148,8 @@ public class JuggernautServer {
         PlayerGameData killerData = GAME_PLAYER_MAP.get(killer);
         killerData.setJuggernaut(true);
         this.juggernautPlayer = killer;
-        JuggernautUtil.setJuggernautAttribute(killer);
         JuggernautUtil.removeJuggernautAttribute(juggernaut);
+        JuggernautUtil.setJuggernautAttribute(killer);
         // TODO: 网络发包，通知玩家Juggernaut已转移
         Juggernaut.debug("玩家 " + juggernaut.getName().getString() + " 被玩家 " + killer.getName().getString() + " 杀死，Juggernaut已转移");
     }
