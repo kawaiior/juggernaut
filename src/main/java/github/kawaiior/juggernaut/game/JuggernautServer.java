@@ -6,6 +6,7 @@ import github.kawaiior.juggernaut.network.packet.DeathBoardMsgPacket;
 import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -23,7 +24,9 @@ public class JuggernautServer {
     public static final BlockPos READY_HOME_POS = new BlockPos(200, 128, 200);
     public static final long GAME_MAX_TIME = 1000 * 60 * 10; // 10分钟
 
+    private boolean ready = false;
     private boolean start = false;
+    private long gameReadyTick = -1;
     private long gameStartTime = -1;
     private ServerPlayerEntity juggernautPlayer = null;
 
@@ -33,6 +36,17 @@ public class JuggernautServer {
 
     public static JuggernautServer getInstance() {
         return INSTANCE;
+    }
+
+    public void gameReady(){
+        Juggernaut.debug("====================================");
+        Juggernaut.debug("游戏将在60秒后开始");
+        Juggernaut.debug("====================================");
+        // TODO: 网络发包，通知游戏即将开始
+        this.ready = true;
+        this.gameReadyTick = 0;
+
+        // TODO: 将所有玩家传送到准备房间
     }
 
     public void gameStart() {
@@ -53,6 +67,7 @@ public class JuggernautServer {
         Juggernaut.debug("====================================");
         // TODO: 网络发包，通知游戏结束
         this.start = false;
+        this.ready = false;
 
         // 重置所有玩家的游戏数据
         GAME_PLAYER_MAP.forEach((player, obj) -> {
@@ -241,6 +256,8 @@ public class JuggernautServer {
         // 如果游戏已经开始
         if (this.start) {
             this.teleportPlayerToRandomSpawn(player);
+        } else if (this.ready) {
+            this.teleportPlayerToReadyHome(player);
         }
     }
 
@@ -251,22 +268,47 @@ public class JuggernautServer {
         long gameTime = world.getGameTime();
         if (gameTime % 20 == 0) {
             this.updatePlayers(world);
-        }
 
-        if (!this.start){
-            return;
-        }
+            if (!this.ready) {
+                return;
+            }
 
-        // TODO: 按照游戏时间发放对应物资
+            if (!this.start) {
+                if (this.gameReadyTick >= 60) {
+                    // 游戏开始
+                    this.gameStart();
+                    new Thread(() -> {
+                        for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
+                            player.sendStatusMessage(new StringTextComponent("游戏开始"), true);
+                        }
+                    }).start();
+                } else {
+                    // TODO: 发包通知还有 X 秒开始游戏
+                    new Thread(() -> {
+                        for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
+                            player.sendStatusMessage(new StringTextComponent("距离游戏开始还有 " + (60 - this.gameReadyTick) + " 秒"), true);
+                        }
+                    }).start();
+                }
+                this.gameReadyTick++;
+                return;
+            }
 
-        // 如果时间超过最大时间，则结束游戏
-        if (System.currentTimeMillis() - this.gameStartTime > GAME_MAX_TIME) {
-            this.gameOver();
+            // TODO: 按照游戏时间发放对应物资
+
+            // 如果时间超过最大时间，则结束游戏
+            if (System.currentTimeMillis() - this.gameStartTime > GAME_MAX_TIME) {
+                this.gameOver();
+            }
         }
     }
 
     public boolean isStart() {
         return start;
+    }
+
+    public boolean isReady(){
+        return ready;
     }
 
     /**

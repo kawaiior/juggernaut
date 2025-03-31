@@ -37,14 +37,14 @@ public class EventListener {
     @SubscribeEvent
     public static void worldEvent(TickEvent.WorldTickEvent event){
         World world = event.world;
-        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM) {
+        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM || event.phase != TickEvent.Phase.END) {
             return;
         }
 
         JuggernautServer.getInstance().tick((ServerWorld) world);
 
         // 每秒更新一次护甲
-        if (event.phase != TickEvent.Phase.END || world.getGameTime() % 20 != 0)  {
+        if (world.getGameTime() % 20 != 0)  {
             return;
         }
         long now = System.currentTimeMillis();

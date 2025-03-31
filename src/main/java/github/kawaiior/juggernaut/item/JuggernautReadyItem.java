@@ -26,8 +26,8 @@ public class JuggernautReadyItem extends Item {
 
         // 游戏开始
         JuggernautServer juggernautServer = JuggernautServer.getInstance();
-        if (!juggernautServer.isStart()){
-            juggernautServer.gameStart();
+        if (!juggernautServer.isReady()){
+            juggernautServer.gameReady();
         }
 
         return super.onItemRightClick(world, player, hand);
