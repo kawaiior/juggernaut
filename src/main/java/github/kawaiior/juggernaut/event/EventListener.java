@@ -7,6 +7,7 @@ import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
 import github.kawaiior.juggernaut.util.EntityUtil;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -18,6 +19,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -146,6 +149,33 @@ public class EventListener {
         }else {
             JuggernautServer.getInstance().onPlayerDeath(null, serverPlayer);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerBreakBlock(BlockEvent.BreakEvent event){
+        World world = event.getPlayer().world;
+        if (world.isRemote() || event.getPlayer().isCreative() || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM){
+            return;
+        }
+
+        if (event.getState().getMaterial() == Material.WOOL){
+            // 可以破坏羊毛
+            return;
+        }
+
+        // 防止破坏
+        event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onExplosion(ExplosionEvent.Detonate event){
+        World world = event.getWorld();
+        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM){
+            return;
+        }
+
+        // 去除 Material != Material.WOOL 的方块
+        event.getAffectedBlocks().removeIf((pos) -> world.getBlockState(pos).getMaterial() != Material.WOOL);
     }
 
 }
