@@ -2,11 +2,11 @@
   "type": "juggernaut:juggernaut_dim",
   "generator": {
     "type": "juggernaut:juggernaut_chunk",
-    "seed": -2048856837,
+    "seed": 0,
     "settings": "minecraft:overworld",
     "biome_source": {
       "type": "minecraft:vanilla_layered",
-      "seed": -2048856837,
+      "seed": 0,
       "large_biomes": false,
       "legacy_biome_init_layer": false
     }

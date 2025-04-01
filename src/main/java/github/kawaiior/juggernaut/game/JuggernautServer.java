@@ -12,6 +12,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JuggernautServer {
@@ -19,10 +20,25 @@ public class JuggernautServer {
     private static final JuggernautServer INSTANCE = new JuggernautServer();
     private static final Map<ServerPlayerEntity, PlayerGameData> GAME_PLAYER_MAP = new ConcurrentHashMap<>();
 
-    public static final BlockPos SPAWN_POS = new BlockPos(0, 128, 0);
-    public static final BlockPos JUGGERNAUT_POS = new BlockPos(100, 128, 100);
-    public static final BlockPos READY_HOME_POS = new BlockPos(200, 128, 200);
+    private static final Random RANDOM = new Random();
+
+    public static final BlockPos GAME_PLAYGROUND_POS = new BlockPos(0, 64, 0);
+    public static final int GAME_PLAYGROUND_X_WIDTH = 240;
+    public static final int GAME_PLAYGROUND_Z_WIDTH = 240;
+
+    public static final BlockPos GAME_READY_HOME_POS = new BlockPos(-256, 64, -256);
+    public static final int GAME_READY_HOME_X_WIDTH = 32;
+    public static final int GAME_READY_HOME_Z_WIDTH = 32;
+
+    public static final BlockPos SPAWN_HOME_POS = new BlockPos(-16, 64, -16);
+    public static final int SPAWN_HOME_X_WIDTH = 32;
+    public static final int SPAWN_HOME_Z_WIDTH = 32;
+
+    public static final BlockPos SPAWN_POS = new BlockPos(-15, 66, -15);
+    public static final BlockPos JUGGERNAUT_POS = new BlockPos(128, 66, 128);
+    public static final BlockPos READY_HOME_POS = new BlockPos(-240, 70, -240);
     public static final long GAME_MAX_TIME = 1000 * 60 * 10; // 10分钟
+    private static final int GAME_READY_MAX_TICK = 60;
 
     private boolean ready = false;
     private boolean start = false;
@@ -53,7 +69,14 @@ public class JuggernautServer {
         Juggernaut.debug("====================================");
         Juggernaut.debug("游戏开始");
         Juggernaut.debug("====================================");
+
         // TODO: 网络发包，通知游戏开始
+        new Thread(() -> {
+            for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
+                player.sendStatusMessage(new StringTextComponent("游戏开始"), true);
+            }
+        }).start();
+
         this.start = true;
         this.gameStartTime = System.currentTimeMillis();
 
@@ -140,9 +163,15 @@ public class JuggernautServer {
         });
     }
 
+    /**
+     * 把玩家传送到重生房间中的随机位置
+     */
     public void teleportPlayerToRandomSpawn(ServerPlayerEntity player) {
-        // TODO
-        player.moveForced(SPAWN_POS.getX(), SPAWN_POS.getY(), SPAWN_POS.getZ());
+        player.moveForced(
+                SPAWN_POS.getX() + RANDOM.nextDouble() * (SPAWN_HOME_X_WIDTH / 2D),
+                SPAWN_POS.getY(),
+                SPAWN_POS.getZ() + RANDOM.nextDouble() * (SPAWN_HOME_Z_WIDTH / 2D)
+        );
     }
 
     public void teleportJuggernautToRandomSpawn(ServerPlayerEntity player) {
@@ -165,8 +194,15 @@ public class JuggernautServer {
         this.juggernautPlayer = killer;
         JuggernautUtil.removeJuggernautAttribute(juggernaut);
         JuggernautUtil.setJuggernautAttribute(killer);
-        // TODO: 网络发包，通知玩家Juggernaut已转移
         Juggernaut.debug("玩家 " + juggernaut.getName().getString() + " 被玩家 " + killer.getName().getString() + " 杀死，Juggernaut已转移");
+
+        // TODO: 网络发包，通知玩家Juggernaut已转移
+        String message = "玩家 " + killer.getName().getString() + " 成为新的Juggernaut";
+        new Thread(() -> {
+            for (ServerPlayerEntity _player : GAME_PLAYER_MAP.keySet()) {
+                _player.sendStatusMessage(new StringTextComponent(message), true);
+            }
+        }).start();
     }
 
     /**
@@ -186,7 +222,18 @@ public class JuggernautServer {
         PlayerGameData data = GAME_PLAYER_MAP.get(player);
         data.setJuggernaut(true);
         JuggernautUtil.setJuggernautAttribute(player);
+
         // TODO: 网络发包，通知玩家Juggernaut已选择
+        String message = "玩家 " + player.getName().getString() + " 被选为Juggernaut";
+        new Thread(() -> {
+            for (ServerPlayerEntity _player : GAME_PLAYER_MAP.keySet()) {
+                if (_player.equals(player)){
+                    _player.sendStatusMessage(new StringTextComponent("你被选为Juggernaut"), true);
+                    continue;
+                }
+                _player.sendStatusMessage(new StringTextComponent(message), true);
+            }
+        }).start();
     }
 
     /**
@@ -274,19 +321,14 @@ public class JuggernautServer {
             }
 
             if (!this.start) {
-                if (this.gameReadyTick >= 60) {
+                if (this.gameReadyTick >= GAME_READY_MAX_TICK) {
                     // 游戏开始
                     this.gameStart();
-                    new Thread(() -> {
-                        for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
-                            player.sendStatusMessage(new StringTextComponent("游戏开始"), true);
-                        }
-                    }).start();
                 } else {
                     // TODO: 发包通知还有 X 秒开始游戏
                     new Thread(() -> {
                         for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
-                            player.sendStatusMessage(new StringTextComponent("距离游戏开始还有 " + (60 - this.gameReadyTick) + " 秒"), true);
+                            player.sendStatusMessage(new StringTextComponent("距离游戏开始还有 " + (GAME_READY_MAX_TICK - this.gameReadyTick) + " 秒"), true);
                         }
                     }).start();
                 }

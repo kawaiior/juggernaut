@@ -9,8 +9,9 @@ public class JuggernautUtil {
     public static void setJuggernautAttribute(ServerPlayerEntity player) {
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
-            health.setBaseValue(200D);
+            health.setBaseValue(30D);
         }
+        player.setHealth(player.getMaxHealth());
     }
 
     public static void removeJuggernautAttribute(ServerPlayerEntity player) {
