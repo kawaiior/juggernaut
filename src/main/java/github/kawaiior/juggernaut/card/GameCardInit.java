@@ -2,11 +2,10 @@ package github.kawaiior.juggernaut.card;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class GameCardInit {
 
-    private static final List<GameCard> GAME_CARD_ARRAY = new ArrayList<>();
+    public static final List<GameCard> GAME_CARD_ARRAY = new ArrayList<>();
 
     private static int id = 0;
 
@@ -28,5 +27,8 @@ public class GameCardInit {
 
     public static final GameCard XING_HUI = createGameCard(new CardXingHui(nextId(), "xing_hui", 3,10, 40, 40));
     public static final GameCard BAI_MO = createGameCard(new CardBaiMo(nextId(), "bai_mo", 1,8, 60, 60));
-
+    public static final GameCard MADDELENA = createGameCard(new CardMaddelena(nextId(), "maddeleena", 3,10, 60, 60));
+    public static final GameCard FRAGRANS = createGameCard(new CardFragrans(nextId(), "fragrans", 3,40, 60, 60));
+    public static final GameCard XIN = createGameCard(new CardXin(nextId(), "xin", 2,40, 60, 60));
+    public static final GameCard MING = createGameCard(new CardMing(nextId(), "ming", 1,15, 30, 30));
 }

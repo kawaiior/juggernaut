@@ -97,8 +97,20 @@ public class CardPower implements INBTSerializable<CompoundNBT>, IReplicableCap 
         });
     }
 
+    public static void sendCardData(ServerPlayerEntity player, CardPower power) {
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new SyncCardDataPacket(power.getCardId(), power.getLastUseSkillTime(), power.getLastUseUltimateSkillTime(), power.getUltimateSkillEnergy()));
+
+    }
+
     public GameCard getCard() {
         return GameCardInit.getGameCardById(cardId);
+    }
+
+    public void reset() {
+        this.lastUseSkillTime = -1;
+        this.lastUseUltimateSkillTime = -1;
+        this.ultimateSkillEnergy = 0;
     }
 
     public boolean skillUsable() {

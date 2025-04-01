@@ -1,13 +1,8 @@
 package github.kawaiior.juggernaut.card;
 
-import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.card.CardPower;
-import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
-import github.kawaiior.juggernaut.network.packet.SyncCardDataPacket;
+import github.kawaiior.juggernaut.Juggernaut;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public abstract class GameCard {
 
@@ -69,6 +64,10 @@ public abstract class GameCard {
 
     public int getUltimateSkillEnergy() {
         return ultimateSkillEnergy;
+    }
+
+    public TranslationTextComponent getCardTranslationName(){
+        return new TranslationTextComponent("card." + Juggernaut.MOD_ID + "." + cardName);
     }
 
     public void setUltimateSkillEnergy(int ultimateSkillEnergy) {
