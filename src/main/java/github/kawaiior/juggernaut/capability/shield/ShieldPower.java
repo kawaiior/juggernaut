@@ -1,5 +1,6 @@
-package github.kawaiior.juggernaut.capability;
+package github.kawaiior.juggernaut.capability.shield;
 
+import github.kawaiior.juggernaut.capability.IReplicableCap;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.INBTSerializable;
 

@@ -1,6 +1,11 @@
 package github.kawaiior.juggernaut.capability;
 
 import github.kawaiior.juggernaut.Juggernaut;
+import github.kawaiior.juggernaut.capability.card.CardPower;
+import github.kawaiior.juggernaut.capability.card.CardPowerProvider;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower;
+import github.kawaiior.juggernaut.capability.shield.ShieldPowerProvider;
+import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.SyncAllPlayerShieldPacket;
 import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
@@ -28,6 +33,7 @@ public class CapabilityEvent {
         PlayerEntity player = event.getPlayer();
         PlayerEntity original = event.getOriginal();
         CapabilityRegistryHandler.handleCapOnPlayerClone(ModCapability.SHIELD_POWER, player, original);
+        CapabilityRegistryHandler.handleCapOnPlayerClone(ModCapability.CARD_POWER, player, original);
     }
 
     @SubscribeEvent
@@ -37,6 +43,7 @@ public class CapabilityEvent {
         if (entity instanceof PlayerEntity){
             Juggernaut.debug("为玩家添加Capability");
             event.addCapability(new ResourceLocation(Juggernaut.MOD_ID,"shield_power"), new ShieldPowerProvider());
+            event.addCapability(new ResourceLocation(Juggernaut.MOD_ID,"card_power"), new CardPowerProvider());
         }
     }
 
@@ -71,6 +78,9 @@ public class CapabilityEvent {
         }
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                 new SyncAllPlayerShieldPacket(playerShieldData));
+
+        // 向玩家发送 card 数据
+        CardPower.sendCardData((ServerPlayerEntity) player);
     }
 
 }

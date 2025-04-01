@@ -2,7 +2,7 @@ package github.kawaiior.juggernaut.network.packet;
 
 
 import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.ShieldPower;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -15,7 +15,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static github.kawaiior.juggernaut.capability.ShieldPower.SHIELD_DATA;
+import static github.kawaiior.juggernaut.capability.shield.ShieldPower.SHIELD_DATA;
 
 public class SyncShieldPacket {
 

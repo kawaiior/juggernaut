@@ -1,5 +1,7 @@
 package github.kawaiior.juggernaut.capability;
 
+import github.kawaiior.juggernaut.capability.card.CardPower;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -35,6 +37,7 @@ public class CapabilityRegistryHandler {
 
     public static void register(){
         registryCapability(ShieldPower.class, new ShieldPower());
+        registryCapability(CardPower.class, new CardPower());
     }
 
     @SubscribeEvent

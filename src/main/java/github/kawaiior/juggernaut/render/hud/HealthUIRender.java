@@ -3,14 +3,14 @@ package github.kawaiior.juggernaut.render.hud;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import github.kawaiior.juggernaut.Juggernaut;
-import github.kawaiior.juggernaut.capability.ShieldPower;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
-import static github.kawaiior.juggernaut.capability.ShieldPower.SHIELD_DATA;
+import static github.kawaiior.juggernaut.capability.shield.ShieldPower.SHIELD_DATA;
 
 public class HealthUIRender extends AbstractGui {
     private final int width;

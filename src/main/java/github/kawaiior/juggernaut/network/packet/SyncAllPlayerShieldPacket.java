@@ -1,6 +1,6 @@
 package github.kawaiior.juggernaut.network.packet;
 
-import github.kawaiior.juggernaut.capability.ShieldPower.PlayerShieldData;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower.PlayerShieldData;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static github.kawaiior.juggernaut.capability.ShieldPower.SHIELD_DATA;
+import static github.kawaiior.juggernaut.capability.shield.ShieldPower.SHIELD_DATA;
 
 public class SyncAllPlayerShieldPacket {
 

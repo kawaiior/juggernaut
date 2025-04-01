@@ -1,5 +1,6 @@
-package github.kawaiior.juggernaut.capability;
+package github.kawaiior.juggernaut.capability.shield;
 
+import github.kawaiior.juggernaut.capability.ModCapability;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;

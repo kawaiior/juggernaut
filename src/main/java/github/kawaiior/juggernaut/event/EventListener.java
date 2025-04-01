@@ -1,7 +1,7 @@
 package github.kawaiior.juggernaut.event;
 
 import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.ShieldPower;
+import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import github.kawaiior.juggernaut.game.JuggernautServer;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
