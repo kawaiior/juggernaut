@@ -3,6 +3,7 @@ package github.kawaiior.juggernaut.game;
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.DeathBoardMsgPacket;
+import github.kawaiior.juggernaut.network.packet.GameStatusPacket;
 import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -36,13 +37,13 @@ public class JuggernautServer {
 
     public static final BlockPos SPAWN_POS = new BlockPos(-15, 66, -15);
     public static final BlockPos JUGGERNAUT_POS = new BlockPos(128, 66, 128);
-    public static final BlockPos READY_HOME_POS = new BlockPos(-240, 66, -240);
+    public static final BlockPos READY_HOME_POS = new BlockPos(-255, 66, -255);
     public static final long GAME_MAX_TIME = 1000 * 60 * 10; // 10分钟
-    private static final int GAME_READY_MAX_TICK = 60;
+    public static final int GAME_READY_TIME = 1000 * 60;  // 60秒
 
     private boolean ready = false;
     private boolean start = false;
-    private long gameReadyTick = -1;
+    private long gameReadyTime = -1;
     private long gameStartTime = -1;
     private ServerPlayerEntity juggernautPlayer = null;
 
@@ -58,11 +59,15 @@ public class JuggernautServer {
         Juggernaut.debug("====================================");
         Juggernaut.debug("游戏将在60秒后开始");
         Juggernaut.debug("====================================");
-        // TODO: 网络发包，通知游戏即将开始
-        this.ready = true;
-        this.gameReadyTick = 0;
 
-        // TODO: 将所有玩家传送到准备房间
+        this.ready = true;
+        this.gameReadyTime = System.currentTimeMillis();
+
+        // 网络发包，通知游戏即将开始
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(1, this.gameReadyTime));
+
+        // 将所有玩家传送到准备房间
+        this.teleportAllPlayer2ReadyHome();
     }
 
     public void gameStart() {
@@ -70,15 +75,11 @@ public class JuggernautServer {
         Juggernaut.debug("游戏开始");
         Juggernaut.debug("====================================");
 
-        // TODO: 网络发包，通知游戏开始
-        new Thread(() -> {
-            for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
-                player.sendStatusMessage(new StringTextComponent("游戏开始"), true);
-            }
-        }).start();
-
         this.start = true;
         this.gameStartTime = System.currentTimeMillis();
+
+        // 网络发包，通知游戏开始
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(2, this.gameStartTime));
 
         this.choiceJuggernaut();
         this.teleportAllPlayer2Ground();
@@ -88,15 +89,21 @@ public class JuggernautServer {
         Juggernaut.debug("====================================");
         Juggernaut.debug("游戏结束");
         Juggernaut.debug("====================================");
-        // TODO: 网络发包，通知游戏结束
+
         this.start = false;
         this.ready = false;
+
+        // 网络发包，通知游戏结束
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(0, -1));
 
         // 重置所有玩家的游戏数据
         GAME_PLAYER_MAP.forEach((player, obj) -> {
            obj.reset();
         });
         this.juggernautPlayer = null;
+
+        // 将所有玩家传送到准备房间
+        this.teleportAllPlayer2ReadyHome();
     }
 
     /**
@@ -180,7 +187,11 @@ public class JuggernautServer {
     }
 
     public void teleportPlayerToReadyHome(ServerPlayerEntity player) {
-        player.moveForced(READY_HOME_POS.getX(), READY_HOME_POS.getY(), READY_HOME_POS.getZ());
+        player.moveForced(
+                READY_HOME_POS.getX() + RANDOM.nextDouble() * 15,
+                READY_HOME_POS.getY(),
+                READY_HOME_POS.getZ() + RANDOM.nextDouble() * 15
+        );
     }
 
     /**
@@ -321,18 +332,11 @@ public class JuggernautServer {
             }
 
             if (!this.start) {
-                if (this.gameReadyTick >= GAME_READY_MAX_TICK) {
+                long timeNow = System.currentTimeMillis();
+                if (timeNow - this.gameReadyTime > GAME_READY_TIME) {
                     // 游戏开始
                     this.gameStart();
-                } else {
-                    // TODO: 发包通知还有 X 秒开始游戏
-                    new Thread(() -> {
-                        for (ServerPlayerEntity player : GAME_PLAYER_MAP.keySet()) {
-                            player.sendStatusMessage(new StringTextComponent("距离游戏开始还有 " + (GAME_READY_MAX_TICK - this.gameReadyTick) + " 秒"), true);
-                        }
-                    }).start();
                 }
-                this.gameReadyTick++;
                 return;
             }
 
@@ -351,6 +355,14 @@ public class JuggernautServer {
 
     public boolean isReady(){
         return ready;
+    }
+
+    public long getGameReadyTime() {
+        return gameReadyTime;
+    }
+
+    public long getGameStartTime() {
+        return gameStartTime;
     }
 
     /**

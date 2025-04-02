@@ -14,7 +14,7 @@ public class DeathBoardGui extends AbstractGui {
     private static final int MARGIN = 5;
     private static final List<DeathBoardMsg> DEATH_BOARD_MSG_LIST = new ArrayList<>();
     private static final int MAX_MSG_NUM = 10;
-    private static final int MAX_MSG_TIME_MILLIS = 10000;
+    private static final int MAX_MSG_TIME_MILLIS = 15000;
     private static final int STRING_HEIGHT = 11;
 
     public DeathBoardGui(MatrixStack matrixStack) {

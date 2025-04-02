@@ -1,6 +1,7 @@
 package github.kawaiior.juggernaut.event;
 
 import github.kawaiior.juggernaut.render.hud.DeathBoardGui;
+import github.kawaiior.juggernaut.render.hud.GameStatusRender;
 import github.kawaiior.juggernaut.render.hud.HealthUIRender;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,6 +31,9 @@ public class HudClientEvent {
         // 渲染生命值与护甲值
         HealthUIRender healthUIRender = new HealthUIRender(event.getMatrixStack());
         healthUIRender.render();
+        // 渲染游戏状态
+        GameStatusRender gameStatusRender = new GameStatusRender(event.getMatrixStack());
+        gameStatusRender.render();
     }
 
 }

@@ -6,7 +6,9 @@ import github.kawaiior.juggernaut.capability.card.CardPowerProvider;
 import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import github.kawaiior.juggernaut.capability.shield.ShieldPowerProvider;
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.JuggernautServer;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
+import github.kawaiior.juggernaut.network.packet.GameStatusPacket;
 import github.kawaiior.juggernaut.network.packet.SyncAllPlayerShieldPacket;
 import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
 import net.minecraft.entity.Entity;
@@ -81,6 +83,20 @@ public class CapabilityEvent {
 
         // 向玩家发送 card 数据
         CardPower.sendCardData((ServerPlayerEntity) player);
+
+        // 向玩家发送游戏状态
+        // TODO: 把这些操作独立出来
+        int status = 0;
+        long time = -1;
+        if (JuggernautServer.getInstance().isStart()){
+            status = 2;
+            time = JuggernautServer.getInstance().getGameStartTime();
+        } else if (JuggernautServer.getInstance().isReady()) {
+            status = 1;
+            time = JuggernautServer.getInstance().getGameReadyTime();
+        }
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                new GameStatusPacket(status, time));
     }
 
 }
