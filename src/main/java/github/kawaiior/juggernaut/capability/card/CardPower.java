@@ -114,7 +114,16 @@ public class CardPower implements INBTSerializable<CompoundNBT>, IReplicableCap 
     }
 
     public boolean skillUsable() {
-        return System.currentTimeMillis() - lastUseSkillTime >= (getCard().getSkillCoolDown() / getCard().getSkillUseCount());
+        // 当 card.getSkillUseCount() == 1 时 lastUseSkillTime为上一次使用技能的时间
+        // 如果 card.getSkillUseCount() > 1 时 lastUseSkillTime + card.getSkillCoolDown() 为技能充能完成的时间
+        // 如果 card.getSkillUseCount() > 1 时 技能没有充能完成也可以使用，但是会将 lastUseSkillTime 向后推移 card.getSkillCoolDown() 时间
+        long skillChargingFullTime = lastUseSkillTime + getCard().getSkillCoolDown();
+        long timeNow = System.currentTimeMillis();
+        if (skillChargingFullTime <= timeNow){
+            return true;
+        }
+        long chargingTime = timeNow - (skillChargingFullTime - (long) getCard().getSkillCoolDown() * getCard().getSkillUseCount());
+        return chargingTime > getCard().getSkillCoolDown();
     }
 
     public boolean ultimateSkillUsable() {

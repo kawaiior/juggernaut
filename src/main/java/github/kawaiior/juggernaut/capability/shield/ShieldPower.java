@@ -38,12 +38,9 @@ public class ShieldPower implements INBTSerializable<CompoundNBT>, IReplicableCa
     }
 
     public void setPlayerShield(float playerShield) {
+        // 允许护甲溢出
         if (playerShield < 0) {
             this.playerShield = 0;
-            return;
-        }
-        if (playerShield > this.playerMaxShield){
-            this.playerShield = this.playerMaxShield;
             return;
         }
         this.playerShield = playerShield;

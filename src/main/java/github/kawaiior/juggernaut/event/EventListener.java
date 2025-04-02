@@ -57,11 +57,27 @@ public class EventListener {
             if (now - lastHurtTime < RECOVER_SHIELD_TIME){
                 continue;
             }
-            // 恢复护甲
+
+            // 护甲tick
             LazyOptional<ShieldPower> capability = player.getCapability(ModCapability.SHIELD_POWER);
             capability.ifPresent((power) -> {
                 if (power.getPlayerShield() < power.getPlayerMaxShield()){
-                    power.setPlayerShield(power.getPlayerShield() + 1F);
+                    // 恢复护甲，自动恢复的护甲不会溢出
+                    float nextShield = power.getPlayerShield() + 1F;
+                    if (nextShield > power.getPlayerMaxShield()){
+                        nextShield = power.getPlayerMaxShield();
+                    }
+                    power.setPlayerShield(nextShield);
+                    // 网络发包
+                    NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
+                            new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), player.getUniqueID()));
+                } else if (power.getPlayerShield() > power.getPlayerMaxShield()) {
+                    // 如果护甲溢出了 每秒损失一点护甲值
+                    float nextShield = power.getPlayerShield() - 1F;
+                    if (nextShield < power.getPlayerMaxShield()){
+                        nextShield = power.getPlayerMaxShield();
+                    }
+                    power.setPlayerShield(nextShield);
                     // 网络发包
                     NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
                             new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), player.getUniqueID()));

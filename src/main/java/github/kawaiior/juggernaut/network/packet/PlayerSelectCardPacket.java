@@ -75,6 +75,8 @@ public class PlayerSelectCardPacket {
         }
 
         if (JuggernautServer.getInstance().isStart()){
+            // TODO: 游戏中切换角色后，玩家复活时生效
+
             // 游戏中无法切换角色
             player.sendStatusMessage(new StringTextComponent("游戏中无法切换角色"), false);
             return;
