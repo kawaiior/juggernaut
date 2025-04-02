@@ -36,7 +36,7 @@ public class JuggernautServer {
 
     public static final BlockPos SPAWN_POS = new BlockPos(-15, 66, -15);
     public static final BlockPos JUGGERNAUT_POS = new BlockPos(128, 66, 128);
-    public static final BlockPos READY_HOME_POS = new BlockPos(-240, 70, -240);
+    public static final BlockPos READY_HOME_POS = new BlockPos(-240, 66, -240);
     public static final long GAME_MAX_TIME = 1000 * 60 * 10; // 10分钟
     private static final int GAME_READY_MAX_TICK = 60;
 

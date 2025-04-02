@@ -49,7 +49,7 @@ public class JuggernautItem extends Item {
 
         Juggernaut.debug("Teleporting player to " + serverWorld.getDimensionKey().getLocation());
         player.changeDimension(serverWorld, new JuggernautTeleporter(
-                JuggernautServer.READY_HOME_POS.add(0, 2, 0),
+                JuggernautServer.READY_HOME_POS,
                 flag
         ));
 
