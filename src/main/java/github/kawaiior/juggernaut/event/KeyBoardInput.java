@@ -21,10 +21,26 @@ public class KeyBoardInput {
             GLFW.GLFW_KEY_H,
             "key.category." + Juggernaut.MOD_ID);
 
+    public static final KeyBinding PLAYER_USE_SKILL = new KeyBinding("key.player_use_skill",
+            KeyConflictContext.IN_GAME,
+            InputMappings.Type.KEYSYM,
+            GLFW.GLFW_KEY_C,
+            "key.category." + Juggernaut.MOD_ID);
+
+    public static final KeyBinding PLAYER_USE_ULTIMATE_SKILL = new KeyBinding("key.player_use_ultimate_skill",
+            KeyConflictContext.IN_GAME,
+            InputMappings.Type.KEYSYM,
+            GLFW.GLFW_KEY_X,
+            "key.category." + Juggernaut.MOD_ID);
+
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.KeyInputEvent event) {
         if (OPEN_SELECT_CARD_GUI.isPressed()) {
             DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> SelectCardGui.OpenSelectCardGui::new);
+        } else if (PLAYER_USE_SKILL.isPressed())  {
+            Juggernaut.debug("玩家使用技能");
+        }else if (PLAYER_USE_ULTIMATE_SKILL.isPressed()) {
+            Juggernaut.debug("玩家使用终极技能");
         }
     }
 

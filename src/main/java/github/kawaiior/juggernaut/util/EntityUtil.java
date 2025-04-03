@@ -1,5 +1,9 @@
 package github.kawaiior.juggernaut.util;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,11 +20,14 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class EntityUtil {
 
@@ -201,5 +208,21 @@ public class EntityUtil {
     public static <T extends IParticleData> void spawnParticlesAroundEntity(ServerWorld world, LivingEntity entity, T type) {
         spawnParticlesAroundEntity(world, entity, type, 5);
     }
+
+    @OnlyIn(Dist.CLIENT)
+    @Nullable
+    public static String getPlayerNameByUUID(UUID uuid){
+        ClientWorld world = Minecraft.getInstance().world;
+        if (world == null){
+            return null;
+        }
+        for (PlayerEntity player: world.getPlayers()){
+            if (player.getUniqueID().equals(uuid)){
+                return player.getScoreboardName();
+            }
+        }
+        return null;
+    }
+
 
 }

@@ -1,12 +1,11 @@
 package github.kawaiior.juggernaut.item;
 
-import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.shield.ShieldPower;
+import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
-import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
-import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -14,8 +13,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,15 +32,13 @@ public class JuggernautShieldItem extends Item {
         }
 
         // 护甲+20
-        LazyOptional<ShieldPower> capability = player.getCapability(ModCapability.SHIELD_POWER);
-        capability.ifPresent((power) -> {
-            power.setPlayerShield(power.getPlayerShield() + 20);
-            // 向所有客户端发送 ShieldPower 数据
-            NetworkRegistryHandler.INSTANCE.send(
-                    PacketDistributor.ALL.with(() -> null),
-                    new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), player.getUniqueID())
-            );
-        });
+        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData((ServerPlayerEntity) player);
+        if (gameData == null){
+            return super.onItemRightClick(world, player, hand);
+        }
+
+        gameData.setTemporaryShield(gameData.getTemporaryShield() + 20F);
+        gameData.syncShieldData((ServerPlayerEntity) player);
 
         return super.onItemRightClick(world, player, hand);
     }

@@ -11,15 +11,21 @@ public abstract class GameCard {
     private int skillUseCount;
     private int skillCoolDown;
     private int ultimateSkillCoolDown;
-    private int ultimateSkillEnergy;
 
-    public GameCard(int cardId, String cardName, int skillUseCount, int skillCoolDown, int ultimateSkillCoolDown, int ultimateSkillEnergy) {
+    public GameCard(int cardId, String cardName, int skillUseCount, int skillCoolDown, int ultimateSkillCoolDown) {
         this.cardId = cardId;
         this.cardName = cardName;
         this.skillUseCount = skillUseCount;
         this.skillCoolDown = skillCoolDown;
         this.ultimateSkillCoolDown = ultimateSkillCoolDown;
-        this.ultimateSkillEnergy = ultimateSkillEnergy;
+    }
+
+    public GameCard() {
+        this.cardId = -1;
+        this.cardName = "undefined";
+        this.skillUseCount = 1;
+        this.skillCoolDown = 10;
+        this.ultimateSkillCoolDown = 60;
     }
 
     public int getCardId() {
@@ -62,16 +68,8 @@ public abstract class GameCard {
         this.ultimateSkillCoolDown = ultimateSkillCoolDown;
     }
 
-    public int getUltimateSkillEnergy() {
-        return ultimateSkillEnergy;
-    }
-
     public TranslationTextComponent getCardTranslationName(){
         return new TranslationTextComponent("card." + Juggernaut.MOD_ID + "." + cardName);
-    }
-
-    public void setUltimateSkillEnergy(int ultimateSkillEnergy) {
-        this.ultimateSkillEnergy = ultimateSkillEnergy;
     }
 
     public abstract void playerUseSkill(PlayerEntity player, PlayerEntity target);

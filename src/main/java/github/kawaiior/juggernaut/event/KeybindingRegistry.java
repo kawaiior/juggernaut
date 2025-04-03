@@ -10,6 +10,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class KeybindingRegistry {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ClientRegistry.registerKeyBinding(KeyBoardInput.OPEN_SELECT_CARD_GUI));
+        event.enqueueWork(() -> {
+            ClientRegistry.registerKeyBinding(KeyBoardInput.OPEN_SELECT_CARD_GUI);
+            ClientRegistry.registerKeyBinding(KeyBoardInput.PLAYER_USE_SKILL);
+            ClientRegistry.registerKeyBinding(KeyBoardInput.PLAYER_USE_ULTIMATE_SKILL);
+        });
     }
 }

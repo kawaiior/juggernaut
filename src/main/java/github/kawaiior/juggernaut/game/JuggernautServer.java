@@ -39,7 +39,7 @@ public class JuggernautServer {
     public static final BlockPos JUGGERNAUT_POS = new BlockPos(128, 66, 128);
     public static final BlockPos READY_HOME_POS = new BlockPos(-255, 66, -255);
     public static final long GAME_MAX_TIME = 1000 * 60 * 10; // 10分钟
-    public static final int GAME_READY_TIME = 1000 * 60;  // 60秒
+    public static final int GAME_READY_TIME = 1000 * 15;  // 60秒
 
     private boolean ready = false;
     private boolean start = false;
@@ -82,7 +82,16 @@ public class JuggernautServer {
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(2, this.gameStartTime));
 
         this.choiceJuggernaut();
-        this.teleportAllPlayer2Ground();
+
+        // 传送所有玩家并重置生命值
+        GAME_PLAYER_MAP.forEach((player, obj) -> {
+            if (obj.isJuggernaut()){
+                this.teleportJuggernautToRandomSpawn(player);
+            }else {
+                this.teleportPlayerToRandomSpawn(player);
+            }
+            this.resetPlayerHealthAndShield(player);
+        });
     }
 
     public void gameOver() {
@@ -98,7 +107,9 @@ public class JuggernautServer {
 
         // 重置所有玩家的游戏数据
         GAME_PLAYER_MAP.forEach((player, obj) -> {
-           obj.reset();
+           obj.resetGameData();
+           obj.resetCardData();
+           obj.setShield(obj.getMaxShield());
         });
         this.juggernautPlayer = null;
 
@@ -152,22 +163,12 @@ public class JuggernautServer {
         }
         // 传送到随机出生点并重置生命值
         this.teleportPlayerToRandomSpawn(player);
-        player.setHealth(player.getMaxHealth());
+        this.resetPlayerHealthAndShield(player);
     }
 
     private void teleportAllPlayer2ReadyHome() {
         // TODO
         GAME_PLAYER_MAP.forEach((player, obj) -> this.teleportPlayerToReadyHome(player));
-    }
-
-    private void teleportAllPlayer2Ground() {
-        GAME_PLAYER_MAP.forEach((player, obj) -> {
-            if (obj.isJuggernaut()){
-                this.teleportJuggernautToRandomSpawn(player);
-            }else {
-                this.teleportPlayerToRandomSpawn(player);
-            }
-        });
     }
 
     /**
@@ -309,14 +310,26 @@ public class JuggernautServer {
      * 如果游戏已经开始，则将玩家传送到随机出生点
      */
     public void playerJoinGame(ServerPlayerEntity player) {
-        GAME_PLAYER_MAP.put(player, new PlayerGameData());
+        // 检查PlayerGameData是否存在
+        if (!GAME_PLAYER_MAP.containsKey(player)) {
+            GAME_PLAYER_MAP.put(player, new PlayerGameData(player.getScoreboardName()));
+        }
+
         // TODO: 通过mixin修改玩家饱食度tick逻辑
         // 如果游戏已经开始
         if (this.start) {
+            this.resetPlayerHealthAndShield(player);
             this.teleportPlayerToRandomSpawn(player);
         } else if (this.ready) {
             this.teleportPlayerToReadyHome(player);
         }
+    }
+
+    private void resetPlayerHealthAndShield(ServerPlayerEntity player){
+        player.setHealth(player.getMaxHealth());
+        PlayerGameData gameData = GAME_PLAYER_MAP.get(player);
+        gameData.setShield(gameData.getMaxShield());
+        gameData.syncShieldData(player);
     }
 
     /**
@@ -370,5 +383,13 @@ public class JuggernautServer {
      */
     public <T> void sendPacketToAllPlayers(T packet) {
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null), packet);
+    }
+
+    public Map<ServerPlayerEntity, PlayerGameData> getGamePlayerMap() {
+        return GAME_PLAYER_MAP;
+    }
+
+    public PlayerGameData getPlayerGameData(ServerPlayerEntity player){
+        return GAME_PLAYER_MAP.get(player);
     }
 }

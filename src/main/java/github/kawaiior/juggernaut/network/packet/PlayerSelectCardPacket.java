@@ -1,11 +1,11 @@
 package github.kawaiior.juggernaut.network.packet;
 
 
-import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.card.CardPower;
 import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.card.GameCardInit;
+import github.kawaiior.juggernaut.game.JuggernautClient;
 import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -14,7 +14,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -61,6 +60,7 @@ public class PlayerSelectCardPacket {
         if (card == null){
             message = "切换角色失败";
         }else {
+            JuggernautClient.getInstance().getPlayerData(player.getUniqueID()).setCardId(card.getCardId());
             message = "已切换角色为: " + card.getCardTranslationName().getString();
         }
 
@@ -68,7 +68,6 @@ public class PlayerSelectCardPacket {
     }
 
     public static void onServerCustomPack(PlayerSelectCardPacket packet, NetworkEvent.Context context){
-        GameCard card = GameCardInit.getGameCardById(packet.cardId);
         ServerPlayerEntity player = context.getSender();
         if (player == null){
             return;
@@ -82,19 +81,18 @@ public class PlayerSelectCardPacket {
             return;
         }
 
+        GameCard card = GameCardInit.getGameCardById(packet.cardId);
         if (card == null){
             // 角色不存在
             player.sendStatusMessage(new StringTextComponent("角色不存在"), false);
             return;
         }
 
-        LazyOptional<CardPower> capability = player.getCapability(ModCapability.CARD_POWER);
-        capability.ifPresent((power) -> {
-            power.setCardId(card.getCardId());
-            power.reset();
+        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
+        if (gameData != null){
+            gameData.setCardId(packet.cardId);
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                    new PlayerSelectCardPacket(card.getCardId()));
-            CardPower.sendCardData(player, power);
-        });
+                    new PlayerSelectCardPacket(gameData.getCardId()));
+        }
     }
 }

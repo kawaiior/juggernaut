@@ -1,10 +1,9 @@
 package github.kawaiior.juggernaut.event;
 
-import github.kawaiior.juggernaut.capability.ModCapability;
-import github.kawaiior.juggernaut.capability.shield.ShieldPower;
 import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
-import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
+import github.kawaiior.juggernaut.network.packet.GameStatusPacket;
 import github.kawaiior.juggernaut.util.EntityUtil;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
 import net.minecraft.block.material.Material;
@@ -15,8 +14,8 @@ import net.minecraft.potion.Effects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -26,16 +25,34 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 @Mod.EventBusSubscriber
 public class EventListener {
 
-    private static final Map<UUID, Long> PLAYER_LAST_HURT_MAP = new HashMap<>();
-    // 5秒
-    private static final int RECOVER_SHIELD_TIME = 5000;
+    @SubscribeEvent
+    public static void onPlayerJoin(EntityJoinWorldEvent event) {
+        Entity entity = event.getEntity();
+        if (event.getWorld().isRemote || !(entity instanceof PlayerEntity)) {
+            return;
+        }
+        ServerPlayerEntity player = (ServerPlayerEntity) entity;
+        PlayerGameData gameData = new PlayerGameData(player.getScoreboardName());
+        JuggernautServer juggernautServer = JuggernautServer.getInstance();
+        juggernautServer.getGamePlayerMap().put(player, gameData);
+        gameData.syncCardData(player);
+        gameData.syncShieldData(player);
+
+        int status = 0;
+        long time = -1;
+        if (juggernautServer.isStart()){
+            status = 2;
+            time = juggernautServer.getGameStartTime();
+        } else if (juggernautServer.isReady()) {
+            status = 1;
+            time = juggernautServer.getGameReadyTime();
+        }
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new GameStatusPacket(status, time));
+    }
 
     @SubscribeEvent
     public static void worldEvent(TickEvent.WorldTickEvent event){
@@ -44,7 +61,8 @@ public class EventListener {
             return;
         }
 
-        JuggernautServer.getInstance().tick((ServerWorld) world);
+        JuggernautServer juggernautServer = JuggernautServer.getInstance();
+        juggernautServer.tick((ServerWorld) world);
 
         // 每秒更新一次护甲
         if (world.getGameTime() % 20 != 0)  {
@@ -53,36 +71,11 @@ public class EventListener {
         long now = System.currentTimeMillis();
         MinecraftServer server = world.getServer();
         for (ServerPlayerEntity player : server.getPlayerList().getPlayers()){
-            long lastHurtTime = PLAYER_LAST_HURT_MAP.getOrDefault(player.getUniqueID(), 0L);
-            if (now - lastHurtTime < RECOVER_SHIELD_TIME){
+            PlayerGameData gameData = juggernautServer.getPlayerGameData(player);
+            if (gameData == null){
                 continue;
             }
-
-            // 护甲tick
-            LazyOptional<ShieldPower> capability = player.getCapability(ModCapability.SHIELD_POWER);
-            capability.ifPresent((power) -> {
-                if (power.getPlayerShield() < power.getPlayerMaxShield()){
-                    // 恢复护甲，自动恢复的护甲不会溢出
-                    float nextShield = power.getPlayerShield() + 1F;
-                    if (nextShield > power.getPlayerMaxShield()){
-                        nextShield = power.getPlayerMaxShield();
-                    }
-                    power.setPlayerShield(nextShield);
-                    // 网络发包
-                    NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                            new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), player.getUniqueID()));
-                } else if (power.getPlayerShield() > power.getPlayerMaxShield()) {
-                    // 如果护甲溢出了 每秒损失一点护甲值
-                    float nextShield = power.getPlayerShield() - 1F;
-                    if (nextShield < power.getPlayerMaxShield()){
-                        nextShield = power.getPlayerMaxShield();
-                    }
-                    power.setPlayerShield(nextShield);
-                    // 网络发包
-                    NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                            new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), player.getUniqueID()));
-                }
-            });
+            gameData.shieldTick(player, now);
         }
     }
 
@@ -113,27 +106,35 @@ public class EventListener {
             juggernautServer.onPlayerHurt(null, hurtPlayer, event.getAmount());
         }
 
+        PlayerGameData gameData = juggernautServer.getPlayerGameData(hurtPlayer);
+        if (gameData == null){
+            return;
+        }
+
         // 更新hurt time
-        PLAYER_LAST_HURT_MAP.put(hurtPlayer.getUniqueID(), System.currentTimeMillis());
+        gameData.setLastHurtTime(System.currentTimeMillis());
 
         // 护甲机制
-        LazyOptional<ShieldPower> capability = hurtPlayer.getCapability(ModCapability.SHIELD_POWER);
-        capability.ifPresent((power) -> {
-            float shield = power.getPlayerShield();
-            if (shield <= 0){
-                return;
-            }
-            if (shield > event.getAmount()){
-                power.setPlayerShield(shield - event.getAmount());
+        float amount = event.getAmount();
+        // 先消耗临时护甲
+        if (amount < gameData.getTemporaryShield()){
+            gameData.setTemporaryShield(gameData.getTemporaryShield() - amount);
+            event.setAmount(0);
+        }else {
+            amount = amount - gameData.getTemporaryShield();
+            gameData.setTemporaryShield(0);
+            float shield = gameData.getShield();
+            if (amount < shield){
+                gameData.setShield(shield - amount);
                 event.setAmount(0);
             }else {
-                power.setPlayerShield(0);
-                event.setAmount(event.getAmount() - shield);
+                gameData.setShield(0);
+                event.setAmount(amount - shield);
             }
-            // update
-            NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                    new SyncShieldPacket(power.getPlayerShield(), power.getPlayerMaxShield(), hurtPlayer.getUniqueID()));
-        });
+        }
+
+        // sync
+        gameData.syncShieldData(hurtPlayer);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

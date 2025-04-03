@@ -24,8 +24,6 @@ public class NetworkRegistryHandler {
                 DeathBoardMsgPacket::decode, DeathBoardMsgPacket::handlePacket);
         INSTANCE.registerMessage(nextID(), SyncShieldPacket.class, SyncShieldPacket::encode,
                 SyncShieldPacket::decode, SyncShieldPacket::handlePacket);
-        INSTANCE.registerMessage(nextID(), SyncAllPlayerShieldPacket.class, SyncAllPlayerShieldPacket::encode,
-                SyncAllPlayerShieldPacket::decode, SyncAllPlayerShieldPacket::handlePacket);
         INSTANCE.registerMessage(nextID(), SyncCardDataPacket.class, SyncCardDataPacket::encode,
                 SyncCardDataPacket::decode, SyncCardDataPacket::handlePacket);
         INSTANCE.registerMessage(nextID(), PlayerSelectCardPacket.class, PlayerSelectCardPacket::encode,
