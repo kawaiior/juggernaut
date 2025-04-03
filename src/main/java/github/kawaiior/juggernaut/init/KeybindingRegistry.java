@@ -1,4 +1,4 @@
-package github.kawaiior.juggernaut.event;
+package github.kawaiior.juggernaut.init;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

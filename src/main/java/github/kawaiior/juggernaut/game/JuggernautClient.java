@@ -3,6 +3,7 @@ package github.kawaiior.juggernaut.game;
 import github.kawaiior.juggernaut.util.EntityUtil;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,7 @@ public class JuggernautClient {
         return INSTANCE;
     }
 
+    @Nonnull
     public PlayerGameData getPlayerData(UUID uuid) {
         // auto create
         PlayerGameData gameData = CLIENT_PLAYER_MAP.get(uuid);

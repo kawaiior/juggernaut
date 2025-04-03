@@ -3,6 +3,7 @@ package github.kawaiior.juggernaut.event;
 import github.kawaiior.juggernaut.render.hud.DeathBoardGui;
 import github.kawaiior.juggernaut.render.hud.GameStatusRender;
 import github.kawaiior.juggernaut.render.hud.HealthUIRender;
+import github.kawaiior.juggernaut.render.hud.SkillChargingUIRender;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -34,6 +35,9 @@ public class HudClientEvent {
         // 渲染游戏状态
         GameStatusRender gameStatusRender = new GameStatusRender(event.getMatrixStack());
         gameStatusRender.render();
+        // 渲染技能充能
+        SkillChargingUIRender skillChargingUIRender = new SkillChargingUIRender(event.getMatrixStack());
+        skillChargingUIRender.render();
     }
 
 }

@@ -5,6 +5,7 @@ import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.GameStatusPacket;
 import github.kawaiior.juggernaut.util.EntityUtil;
+import github.kawaiior.juggernaut.util.JuggernautUtil;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -35,6 +36,7 @@ public class EventListener {
             return;
         }
         ServerPlayerEntity player = (ServerPlayerEntity) entity;
+        JuggernautUtil.setUUIDServerPlayerEntityMap(player);
         PlayerGameData gameData = new PlayerGameData(player.getScoreboardName());
         JuggernautServer juggernautServer = JuggernautServer.getInstance();
         juggernautServer.getGamePlayerMap().put(player, gameData);

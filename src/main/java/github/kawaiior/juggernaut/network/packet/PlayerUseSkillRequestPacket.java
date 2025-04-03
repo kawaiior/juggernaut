@@ -1,5 +1,9 @@
 package github.kawaiior.juggernaut.network.packet;
 
+import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.PlayerGameData;
+import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -56,5 +60,32 @@ public class PlayerUseSkillRequestPacket {
 
     public static void onServerCustomPack(PlayerUseSkillRequestPacket packet, NetworkEvent.Context context){
         ServerPlayerEntity player = context.getSender();
+        if (player == null){
+            return;
+        }
+
+        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
+        GameCard card = gameData.getCard();
+        if (packet.ultimate){
+            if (!gameData.ultimateSkillUsable()){
+                return;
+            }
+            ServerPlayerEntity target = JuggernautUtil.getServerPlayerEntity(packet.targetUUID);
+            if (card.isUltimateSkillNeedTarget() && target == null){
+                return;
+            }
+            card.playerUseUltimateSkill(player, target);
+            gameData.afterUltimateSkillUse(player);
+        }else {
+            if (!gameData.skillUsable()){
+                return;
+            }
+            ServerPlayerEntity target = JuggernautUtil.getServerPlayerEntity(packet.targetUUID);
+            if (card.isSkillNeedTarget() && target == null){
+                return;
+            }
+            card.playerUseSkill(player, target);
+            gameData.afterSkillUse(player);
+        }
     }
 }

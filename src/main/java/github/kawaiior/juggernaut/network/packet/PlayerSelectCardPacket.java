@@ -91,6 +91,7 @@ public class PlayerSelectCardPacket {
         PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
         if (gameData != null){
             gameData.setCardId(packet.cardId);
+            gameData.resetCardData();
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                     new PlayerSelectCardPacket(gameData.getCardId()));
         }

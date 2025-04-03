@@ -4,6 +4,9 @@ import github.kawaiior.juggernaut.Juggernaut;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public abstract class GameCard {
 
     private int cardId;
@@ -11,14 +14,8 @@ public abstract class GameCard {
     private int skillUseCount;
     private int skillCoolDown;
     private int ultimateSkillCoolDown;
-
-    public GameCard(int cardId, String cardName, int skillUseCount, int skillCoolDown, int ultimateSkillCoolDown) {
-        this.cardId = cardId;
-        this.cardName = cardName;
-        this.skillUseCount = skillUseCount;
-        this.skillCoolDown = skillCoolDown;
-        this.ultimateSkillCoolDown = ultimateSkillCoolDown;
-    }
+    protected boolean skillNeedTarget;
+    protected boolean ultimateSkillNeedTarget;
 
     public GameCard() {
         this.cardId = -1;
@@ -26,6 +23,8 @@ public abstract class GameCard {
         this.skillUseCount = 1;
         this.skillCoolDown = 10;
         this.ultimateSkillCoolDown = 60;
+        this.skillNeedTarget = false;
+        this.ultimateSkillNeedTarget = false;
     }
 
     public int getCardId() {
@@ -68,26 +67,22 @@ public abstract class GameCard {
         this.ultimateSkillCoolDown = ultimateSkillCoolDown;
     }
 
+    public boolean isSkillNeedTarget() {
+        return skillNeedTarget;
+    }
+
+    public boolean isUltimateSkillNeedTarget() {
+        return ultimateSkillNeedTarget;
+    }
+
     public TranslationTextComponent getCardTranslationName(){
         return new TranslationTextComponent("card." + Juggernaut.MOD_ID + "." + cardName);
     }
 
-    public abstract void playerUseSkill(PlayerEntity player, PlayerEntity target);
+    public abstract void playerUseSkill(@Nonnull PlayerEntity player, @Nullable PlayerEntity target);
 
-    public abstract void playerUseUltimateSkill(PlayerEntity player, PlayerEntity target);
+    public abstract void playerUseUltimateSkill(@Nonnull PlayerEntity player, @Nullable PlayerEntity target);
 
-    public abstract void cardTick(PlayerEntity player);
-
-    public void onPlayerAttack(PlayerEntity player, float damage) {
-
-    }
-
-    public void onPlayerHurt(PlayerEntity player, float damage) {
-
-    }
-
-    public void onPlayerKill(PlayerEntity player) {
-
-    }
+    public abstract void cardTick(@Nonnull PlayerEntity player);
 
 }

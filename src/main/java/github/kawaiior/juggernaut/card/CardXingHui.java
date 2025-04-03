@@ -4,6 +4,11 @@ import net.minecraft.entity.player.PlayerEntity;
 
 public class CardXingHui extends GameCard{
 
+    public CardXingHui() {
+        this.skillNeedTarget = true;
+        this.ultimateSkillNeedTarget = true;
+    }
+
     @Override
     public void playerUseSkill(PlayerEntity player, PlayerEntity target) {
 

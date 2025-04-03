@@ -30,6 +30,8 @@ public class NetworkRegistryHandler {
                 PlayerSelectCardPacket::decode, PlayerSelectCardPacket::handlePacket);
         INSTANCE.registerMessage(nextID(), GameStatusPacket.class, GameStatusPacket::encode,
                 GameStatusPacket::decode, GameStatusPacket::handlePacket);
+        INSTANCE.registerMessage(nextID(), PlayerUseSkillRequestPacket.class, PlayerUseSkillRequestPacket::encode,
+                PlayerUseSkillRequestPacket::decode, PlayerUseSkillRequestPacket::handlePacket);
 
 //        INSTANCE.registerMessage(nextID(), PlayerLeftClickPacket.class, PlayerLeftClickPacket::encode,
 //                PlayerLeftClickPacket::decode, PlayerLeftClickPacket::handlePacket);

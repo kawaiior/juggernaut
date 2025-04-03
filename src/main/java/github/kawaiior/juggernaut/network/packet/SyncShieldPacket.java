@@ -60,10 +60,6 @@ public class SyncShieldPacket {
         }
 
         PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
-        if (gameData == null){
-            gameData = new PlayerGameData(EntityUtil.getPlayerNameByUUID(packet.playerUUID));
-            JuggernautClient.getInstance().getPlayerDataMap().put(packet.playerUUID, gameData);
-        }
         gameData.setShield(packet.shield);
         gameData.setTemporaryShield(packet.temporaryShield);
         gameData.setMaxShield(packet.maxShield);

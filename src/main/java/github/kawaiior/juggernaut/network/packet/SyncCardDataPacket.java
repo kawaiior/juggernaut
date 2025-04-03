@@ -11,7 +11,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;
@@ -21,12 +20,14 @@ public class SyncCardDataPacket {
 
     private final int cardId;
     private final long lastUseSkillTime;
+    private final long chargingFullTime;
     private final long lastUseUltimateSkillTime;
     private final UUID playerUUID;
 
-    public SyncCardDataPacket(int cardId, long lastUseSkillTime, long lastUseUltimateSkillTime, UUID playerUUID) {
+    public SyncCardDataPacket(int cardId, long lastUseSkillTime, long chargingFullTime, long lastUseUltimateSkillTime, UUID playerUUID) {
         this.cardId = cardId;
         this.lastUseSkillTime = lastUseSkillTime;
+        this.chargingFullTime = chargingFullTime;
         this.lastUseUltimateSkillTime = lastUseUltimateSkillTime;
         this.playerUUID = playerUUID;
     }
@@ -34,12 +35,13 @@ public class SyncCardDataPacket {
     public static void encode(SyncCardDataPacket packet, PacketBuffer buffer) {
         buffer.writeInt(packet.cardId);
         buffer.writeLong(packet.lastUseSkillTime);
+        buffer.writeLong(packet.chargingFullTime);
         buffer.writeLong(packet.lastUseUltimateSkillTime);
         buffer.writeUniqueId(packet.playerUUID);
     }
 
     public static SyncCardDataPacket decode(PacketBuffer buffer){
-        return new SyncCardDataPacket(buffer.readInt(), buffer.readLong(), buffer.readLong(), buffer.readUniqueId());
+        return new SyncCardDataPacket(buffer.readInt(), buffer.readLong(), buffer.readLong(), buffer.readLong(), buffer.readUniqueId());
     }
 
     public static void handlePacket(SyncCardDataPacket packet, Supplier<NetworkEvent.Context> content){
@@ -69,6 +71,7 @@ public class SyncCardDataPacket {
             PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
             gameData.setCardId(packet.cardId);
             gameData.setLastUseSkillTime(packet.lastUseSkillTime);
+            gameData.setChargingFullTime(packet.chargingFullTime);
             gameData.setLastUseUltimateSkillTime(packet.lastUseUltimateSkillTime);
         }
     }

@@ -91,6 +91,8 @@ public class JuggernautServer {
                 this.teleportPlayerToRandomSpawn(player);
             }
             this.resetPlayerHealthAndShield(player);
+            obj.resetCardData();
+            obj.resetGameData();
         });
     }
 
@@ -107,7 +109,6 @@ public class JuggernautServer {
 
         // 重置所有玩家的游戏数据
         GAME_PLAYER_MAP.forEach((player, obj) -> {
-           obj.resetGameData();
            obj.resetCardData();
            obj.setShield(obj.getMaxShield());
         });
@@ -164,6 +165,9 @@ public class JuggernautServer {
         // 传送到随机出生点并重置生命值
         this.teleportPlayerToRandomSpawn(player);
         this.resetPlayerHealthAndShield(player);
+        // 重置技能CD
+        data.setChargingFullTime(-1);
+        data.setLastUseSkillTime(-1);
     }
 
     private void teleportAllPlayer2ReadyHome() {
@@ -315,7 +319,6 @@ public class JuggernautServer {
             GAME_PLAYER_MAP.put(player, new PlayerGameData(player.getScoreboardName()));
         }
 
-        // TODO: 通过mixin修改玩家饱食度tick逻辑
         // 如果游戏已经开始
         if (this.start) {
             this.resetPlayerHealthAndShield(player);

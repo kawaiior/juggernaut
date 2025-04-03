@@ -1,5 +1,6 @@
 package github.kawaiior.juggernaut;
 
+import github.kawaiior.juggernaut.init.EntityTypeRegistry;
 import github.kawaiior.juggernaut.init.ItemInit;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
@@ -20,6 +21,7 @@ public class Juggernaut
         IEventBus modbus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ItemInit.ITEMS.register(modbus);
+        EntityTypeRegistry.ENTITY_TYPES.register(modbus);
 
         modbus.addListener(this::onCommonSetUp);
     }

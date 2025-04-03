@@ -8,6 +8,7 @@ import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.network.PacketDistributor;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -29,16 +30,21 @@ public class PlayerGameData {
     private float damageAmount = 0;
     private float bearDamage = 0;
 
-    private int cardId;
+    private int cardId = -1;
     private long lastUseSkillTime;
     private long lastUseUltimateSkillTime;
+    private long chargingFullTime = -1;
 
     private float shield = 20;
     private float temporaryShield = 0;
     private float maxShield = 20;
     private long lastHurtTime = -1;
 
+    @Nonnull
     public String getPlayerName() {
+        if (playerName == null){
+            return "-";
+        }
         return playerName;
     }
 
@@ -127,9 +133,24 @@ public class PlayerGameData {
         this.lastUseUltimateSkillTime = lastUseUltimateSkillTime;
     }
 
+    public long getChargingFullTime() {
+        return chargingFullTime;
+    }
+
+    public void setChargingFullTime(long chargingFullTime) {
+        this.chargingFullTime = chargingFullTime;
+    }
+
     public void syncCardData(ServerPlayerEntity player){
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                new SyncCardDataPacket(this.getCardId(), this.getLastUseSkillTime(), this.getLastUseUltimateSkillTime(), player.getUniqueID()));
+                new SyncCardDataPacket(
+                        this.getCardId(),
+                        this.getLastUseSkillTime(),
+                        this.getChargingFullTime(),
+                        this.getLastUseUltimateSkillTime(),
+                        player.getUniqueID()
+                )
+        );
     }
 
     public GameCard getCard() {
@@ -138,20 +159,20 @@ public class PlayerGameData {
 
     public void resetCardData() {
         this.lastUseSkillTime = -1;
+        this.chargingFullTime = -1;
         this.lastUseUltimateSkillTime = -1;
     }
 
     public boolean skillUsable() {
-        // 当 card.getSkillUseCount() == 1 时 lastUseSkillTime为上一次使用技能的时间
-        // 如果 card.getSkillUseCount() > 1 时 lastUseSkillTime + card.getSkillCoolDown() 为技能充能完成的时间
-        // 如果 card.getSkillUseCount() > 1 时 技能没有充能完成也可以使用，但是会将 lastUseSkillTime 向后推移 card.getSkillCoolDown() 时间
-        long skillChargingFullTime = lastUseSkillTime + getCard().getSkillCoolDown();
         long timeNow = System.currentTimeMillis();
-        if (skillChargingFullTime <= timeNow){
-            return true;
+        GameCard card = getCard();
+        if (card.getSkillUseCount() == 1){
+            return timeNow > chargingFullTime;
         }
-        long chargingTime = timeNow - (skillChargingFullTime - (long) getCard().getSkillCoolDown() * getCard().getSkillUseCount());
-        return chargingTime > getCard().getSkillCoolDown();
+
+        long firstUseTime = chargingFullTime - (long) card.getSkillCoolDown() * card.getSkillUseCount();
+        long canUseTime = firstUseTime + card.getSkillCoolDown();
+        return timeNow > canUseTime;
     }
 
     public boolean ultimateSkillUsable() {
@@ -160,10 +181,11 @@ public class PlayerGameData {
 
     public void afterSkillUse(ServerPlayerEntity player) {
         long time = System.currentTimeMillis();
-        if (time - lastUseSkillTime >= getCard().getSkillCoolDown()){
-            lastUseSkillTime = time;
+        lastUseSkillTime = time;
+        if (time > chargingFullTime){
+            chargingFullTime = time + getCard().getSkillCoolDown();
         }else {
-            lastUseSkillTime += getCard().getSkillCoolDown() / getCard().getSkillUseCount();
+            chargingFullTime += getCard().getSkillCoolDown();
         }
         syncCardData(player);
         // TODO: 概率播放 Skill 语音
