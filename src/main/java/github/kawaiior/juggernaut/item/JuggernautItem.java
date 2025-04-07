@@ -1,7 +1,7 @@
 package github.kawaiior.juggernaut.item;
 
 import github.kawaiior.juggernaut.Juggernaut;
-import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.Constants;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
 import github.kawaiior.juggernaut.world.dimension.JuggernautTeleporter;
 import github.kawaiior.juggernaut.world.dimension.ModDimensions;
@@ -55,7 +55,7 @@ public class JuggernautItem extends Item {
 
         Juggernaut.debug("Teleporting player to " + serverWorld.getDimensionKey().getLocation());
         player.changeDimension(serverWorld, new JuggernautTeleporter(
-                JuggernautServer.READY_HOME_POS,
+                Constants.READY_HOME_POS,
                 flag
         ));
 

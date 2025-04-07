@@ -1,9 +1,12 @@
 package github.kawaiior.juggernaut.item;
 
-import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.Constants;
+import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
@@ -32,13 +35,19 @@ public class JuggernautShieldItem extends Item {
         }
 
         // 护甲+20
-        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData((ServerPlayerEntity) player);
+        PlayerGameData gameData = GameServer.getInstance().getPlayerGameData((ServerPlayerEntity) player);
         if (gameData == null){
             return super.onItemRightClick(world, player, hand);
         }
 
         gameData.setTemporaryShield(gameData.getTemporaryShield() + 20F);
         gameData.syncShieldData((ServerPlayerEntity) player);
+
+        ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
+        if (health != null) {
+            health.setBaseValue(15);
+        }
+        player.setHealth(player.getMaxHealth());
 
         return super.onItemRightClick(world, player, hand);
     }

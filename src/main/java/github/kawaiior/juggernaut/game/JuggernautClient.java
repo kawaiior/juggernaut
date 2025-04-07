@@ -1,7 +1,6 @@
 package github.kawaiior.juggernaut.game;
 
 import github.kawaiior.juggernaut.util.EntityUtil;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -18,7 +17,7 @@ public class JuggernautClient {
     }
 
     @Nonnull
-    public PlayerGameData getPlayerData(UUID uuid) {
+    public PlayerGameData getPlayerData(@Nonnull UUID uuid) {
         // auto create
         PlayerGameData gameData = CLIENT_PLAYER_MAP.get(uuid);
         if (gameData == null){

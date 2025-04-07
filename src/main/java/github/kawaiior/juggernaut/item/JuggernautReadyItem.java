@@ -1,6 +1,6 @@
 package github.kawaiior.juggernaut.item;
 
-import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,9 +30,9 @@ public class JuggernautReadyItem extends Item {
         }
 
         // 游戏开始
-        JuggernautServer juggernautServer = JuggernautServer.getInstance();
-        if (!juggernautServer.isReady()){
-            juggernautServer.gameReady();
+        GameServer gameServer = GameServer.getInstance();
+        if (gameServer.getGameState() != GameServer.GameState.PREPARE){
+            gameServer.gamePrepare();
         }
 
         return super.onItemRightClick(world, player, hand);

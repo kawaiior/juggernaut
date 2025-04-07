@@ -32,7 +32,7 @@ public class SkillChargingUIRender extends AbstractGui {
         }
         PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
 
-        GameCard card = gameData.getCard();
+        GameCard card = gameData.getCard(null);
         if (card == null){
             // 未选择角色
             drawString(matrixStack, minecraft.fontRenderer, "按下`H`键选择角色", width-80, this.height-20, 0xFFFFFF);
@@ -42,7 +42,7 @@ public class SkillChargingUIRender extends AbstractGui {
         int skillFullCoolDown = card.getSkillCoolDown() * card.getSkillUseCount();
         long firstUseSkillTime = gameData.getChargingFullTime() - skillFullCoolDown;
         long timeLeft = now - firstUseSkillTime;
-        boolean skillChargingCompleted = gameData.skillUsable();
+        boolean skillChargingCompleted = gameData.skillUsable(null);
         float skillChargingPer;
         if (timeLeft > skillFullCoolDown){
             skillChargingPer = 1;

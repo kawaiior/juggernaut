@@ -5,6 +5,7 @@ import github.kawaiior.juggernaut.card.GameCardInit;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.SyncCardDataPacket;
 import github.kawaiior.juggernaut.network.packet.SyncShieldPacket;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.network.PacketDistributor;
 
@@ -66,6 +67,30 @@ public class PlayerGameData {
 
     public void playerBearDamage(float amount) {
         this.bearDamage += amount;
+    }
+
+    public void setjKillCount(int jKillCount) {
+        this.jKillCount = jKillCount;
+    }
+
+    public void setKillCount(int killCount) {
+        this.killCount = killCount;
+    }
+
+    public void setDeathCount(int deathCount) {
+        this.deathCount = deathCount;
+    }
+
+    public void setDamageAmount(float damageAmount) {
+        this.damageAmount = damageAmount;
+    }
+
+    public void setBearDamage(float bearDamage) {
+        this.bearDamage = bearDamage;
+    }
+
+    public int getjKillCount() {
+        return jKillCount;
     }
 
     public void killJuggernaut() {
@@ -153,19 +178,30 @@ public class PlayerGameData {
         );
     }
 
-    public GameCard getCard() {
+    public GameCard getCard(ServerPlayerEntity player) {
+        if (cardId == -1){
+            if (player == null){
+                return null;
+            }
+            this.cardId = 0;
+            this.syncCardData(player);
+        }
         return GameCardInit.getGameCardById(cardId);
     }
 
-    public void resetCardData() {
+    public void resetCardData(ServerPlayerEntity player) {
         this.lastUseSkillTime = -1;
         this.chargingFullTime = -1;
         this.lastUseUltimateSkillTime = -1;
+        GameCard card = getCard(player);
+        if (card != null){
+            card.reset(player);
+        }
     }
 
-    public boolean skillUsable() {
+    public boolean skillUsable(ServerPlayerEntity player) {
         long timeNow = System.currentTimeMillis();
-        GameCard card = getCard();
+        GameCard card = getCard(player);
         if (card.getSkillUseCount() == 1){
             return timeNow > chargingFullTime;
         }
@@ -175,17 +211,17 @@ public class PlayerGameData {
         return timeNow > canUseTime;
     }
 
-    public boolean ultimateSkillUsable() {
-        return System.currentTimeMillis() - lastUseUltimateSkillTime >= getCard().getUltimateSkillCoolDown();
+    public boolean ultimateSkillUsable(ServerPlayerEntity player) {
+        return System.currentTimeMillis() - lastUseUltimateSkillTime >= getCard(player).getUltimateSkillCoolDown();
     }
 
     public void afterSkillUse(ServerPlayerEntity player) {
         long time = System.currentTimeMillis();
         lastUseSkillTime = time;
         if (time > chargingFullTime){
-            chargingFullTime = time + getCard().getSkillCoolDown();
+            chargingFullTime = time + getCard(player).getSkillCoolDown();
         }else {
-            chargingFullTime += getCard().getSkillCoolDown();
+            chargingFullTime += getCard(player).getSkillCoolDown();
         }
         syncCardData(player);
         // TODO: 概率播放 Skill 语音

@@ -1,6 +1,7 @@
 package github.kawaiior.juggernaut.util;
 
-import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.Constants;
+import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -18,28 +19,32 @@ public class JuggernautUtil {
     public static void setJuggernautAttribute(ServerPlayerEntity player) {
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
-            health.setBaseValue(30D);
+            health.setBaseValue(Constants.JUGGERNAUT_MAX_HEALTH);
         }
         player.setHealth(player.getMaxHealth());
 
         // 设置护甲
-        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
-        gameData.setMaxShield(20F);
-        gameData.setShield(20F);
-        gameData.syncCardData(player);
+        PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(player);
+        if (gameData != null ){
+            gameData.setMaxShield(Constants.JUGGERNAUT_MAX_SHIELD);
+            gameData.setShield(gameData.getMaxShield());
+            gameData.syncCardData(player);
+        }
     }
 
     public static void removeJuggernautAttribute(ServerPlayerEntity player) {
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
-            health.setBaseValue(20D);
+            health.setBaseValue(Constants.PLAYER_MAX_HEALTH);
         }
 
         // 移除护甲
-        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
-        gameData.setMaxShield(20F);
-        gameData.setShield(20F);
-        gameData.syncShieldData(player);
+        PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(player);
+        if (gameData != null){
+            gameData.setMaxShield(Constants.PLAYER_MAX_SHIELD);
+            gameData.setShield(gameData.getMaxShield());
+            gameData.syncShieldData(player);
+        }
     }
 
     public static void setUUIDServerPlayerEntityMap(ServerPlayerEntity player) {
@@ -54,4 +59,24 @@ public class JuggernautUtil {
         return UUID_SERVER_PLAYER_ENTITY_MAP.get(uuid);
     }
 
+    public static void teleportPlayerToPlayground(ServerPlayerEntity player) {
+        player.moveForced(
+                Constants.SPAWN_POS.getX() + Constants.RANDOM.nextDouble() * (Constants.SPAWN_HOME_X_WIDTH / 2D),
+                Constants.SPAWN_POS.getY(),
+                Constants.SPAWN_POS.getZ() + Constants.RANDOM.nextDouble() * (Constants.SPAWN_HOME_Z_WIDTH / 2D)
+        );
+    }
+
+    public static void teleportJuggernautToPlayground(ServerPlayerEntity player) {
+        // TODO
+        player.moveForced(Constants.JUGGERNAUT_POS.getX(), Constants.JUGGERNAUT_POS.getY(), Constants.JUGGERNAUT_POS.getZ());
+    }
+
+    public static void teleportPlayerToReadyHome(ServerPlayerEntity player) {
+        player.moveForced(
+                Constants.READY_HOME_POS.getX() + Constants.RANDOM.nextDouble() * 15,
+                Constants.READY_HOME_POS.getY(),
+                Constants.READY_HOME_POS.getZ() + Constants.RANDOM.nextDouble() * 15
+        );
+    }
 }

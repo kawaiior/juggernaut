@@ -8,6 +8,7 @@ import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.PlayerSelectCardPacket;
 import github.kawaiior.juggernaut.network.packet.PlayerUseSkillRequestPacket;
 import github.kawaiior.juggernaut.render.gui.SelectCardGui;
+import github.kawaiior.juggernaut.render.hud.GameDataRender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
@@ -43,6 +44,12 @@ public class KeyBoardInput {
             GLFW.GLFW_KEY_X,
             "key.category." + Juggernaut.MOD_ID);
 
+    public static final KeyBinding PLAYER_LOOK_GAME_DATA = new KeyBinding("key.player_look_game_data",
+            KeyConflictContext.IN_GAME,
+            InputMappings.Type.KEYSYM,
+            GLFW.GLFW_KEY_TAB,
+            "key.category." + Juggernaut.MOD_ID);
+
     @SubscribeEvent
     public static void onKeyboardInput(InputEvent.KeyInputEvent event) {
         PlayerEntity player = Minecraft.getInstance().player;
@@ -52,28 +59,30 @@ public class KeyBoardInput {
 
         if (OPEN_SELECT_CARD_GUI.isPressed()) {
             DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> SelectCardGui.OpenSelectCardGui::new);
-        } else if (PLAYER_USE_SKILL.isPressed())  {
+        }
+        if (PLAYER_USE_SKILL.isPressed())  {
             PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
-            GameCard card = gameData.getCard();
+            GameCard card = gameData.getCard(null);
             if (card == null){
                 player.sendStatusMessage(new StringTextComponent("未选择角色"), false);
                 return;
             }
-            if (!gameData.skillUsable()){
+            if (!gameData.skillUsable(null)){
                 player.sendStatusMessage(new StringTextComponent("技能冷却中"), false);
                 return;
             }
             Juggernaut.debug("玩家使用技能");
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.SERVER.with(()-> null),
                     new PlayerUseSkillRequestPacket(false, false, null));
-        }else if (PLAYER_USE_ULTIMATE_SKILL.isPressed()) {
+        }
+        if (PLAYER_USE_ULTIMATE_SKILL.isPressed()) {
             PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
-            GameCard card = gameData.getCard();
+            GameCard card = gameData.getCard(null);
             if (card == null){
                 player.sendStatusMessage(new StringTextComponent("未选择角色"), false);
                 return;
             }
-            if (!gameData.ultimateSkillUsable()){
+            if (!gameData.ultimateSkillUsable(null)){
                 player.sendStatusMessage(new StringTextComponent("终极技能冷却中"), false);
                 return;
             }
@@ -81,6 +90,8 @@ public class KeyBoardInput {
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.SERVER.with(()-> null),
                     new PlayerUseSkillRequestPacket(true, false, null));
         }
+
+        GameDataRender.render = PLAYER_LOOK_GAME_DATA.isKeyDown();
     }
 
 }

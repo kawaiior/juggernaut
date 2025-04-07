@@ -94,7 +94,7 @@ minecraft {
         }
 
         client {
-
+            source sourceSets.main
         }
 
         server {
@@ -126,9 +126,9 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
+     flatDir {
+         dir 'libs'
+     }
 }
 
 dependencies {
@@ -149,6 +149,8 @@ dependencies {
     // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+    // compileOnly fg.deobf(files('libs/curios-forge-1.16.4-4.0.3.5.jar'))
+    runtimeOnly fg.deobf("blank:lanserverproperties-1.16.5:1.4")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

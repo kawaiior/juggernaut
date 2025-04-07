@@ -3,8 +3,8 @@ package github.kawaiior.juggernaut.network.packet;
 
 import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.card.GameCardInit;
+import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.JuggernautServer;
 import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import net.minecraft.client.Minecraft;
@@ -73,7 +73,9 @@ public class PlayerSelectCardPacket {
             return;
         }
 
-        if (JuggernautServer.getInstance().isStart()){
+        GameServer gameServer = GameServer.getInstance();
+
+        if (gameServer.getGameState() == GameServer.GameState.START){
             // TODO: 游戏中切换角色后，玩家复活时生效
 
             // 游戏中无法切换角色
@@ -88,12 +90,15 @@ public class PlayerSelectCardPacket {
             return;
         }
 
-        PlayerGameData gameData = JuggernautServer.getInstance().getPlayerGameData(player);
+        PlayerGameData gameData = gameServer.getPlayerGameData(player);
         if (gameData != null){
+            gameData.resetCardData(player);
             gameData.setCardId(packet.cardId);
-            gameData.resetCardData();
+
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                     new PlayerSelectCardPacket(gameData.getCardId()));
+
+            gameData.syncCardData(player);
         }
     }
 }

@@ -85,4 +85,11 @@ public abstract class GameCard {
 
     public abstract void cardTick(@Nonnull PlayerEntity player);
 
+    public boolean onPlayerDeath(@Nonnull PlayerEntity player) {
+        return false;
+    }
+
+    public void reset(PlayerEntity player){
+
+    }
 }

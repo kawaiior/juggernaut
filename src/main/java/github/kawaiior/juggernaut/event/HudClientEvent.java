@@ -1,9 +1,6 @@
 package github.kawaiior.juggernaut.event;
 
-import github.kawaiior.juggernaut.render.hud.DeathBoardGui;
-import github.kawaiior.juggernaut.render.hud.GameStatusRender;
-import github.kawaiior.juggernaut.render.hud.HealthUIRender;
-import github.kawaiior.juggernaut.render.hud.SkillChargingUIRender;
+import github.kawaiior.juggernaut.render.hud.*;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -18,7 +15,8 @@ public class HudClientEvent {
         // 不再渲染饱食度 生命值 经验值
         if (event.getType() == RenderGameOverlayEvent.ElementType.FOOD ||
                 event.getType() == RenderGameOverlayEvent.ElementType.HEALTH ||
-                event.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE){
+                event.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE ||
+                event.getType() == RenderGameOverlayEvent.ElementType.PLAYER_LIST) {
             event.setCanceled(true);
             return;
         }
@@ -38,6 +36,11 @@ public class HudClientEvent {
         // 渲染技能充能
         SkillChargingUIRender skillChargingUIRender = new SkillChargingUIRender(event.getMatrixStack());
         skillChargingUIRender.render();
+        // 渲染GAME DATA
+        if (GameDataRender.render){
+            GameDataRender gameDataRender = new GameDataRender(event.getMatrixStack());
+            gameDataRender.render();
+        }
     }
 
 }

@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "juggernaut.refmap.json",
   "mixins": [
-    "FoodStatsMixin"
+    "FoodStatsMixin",
+    "AccessorRenderState",
+    "DeathScreenMixin"
   ],
   "client": [
   ],

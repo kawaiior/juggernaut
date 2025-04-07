@@ -2,7 +2,7 @@ package github.kawaiior.juggernaut.world.chunk;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import github.kawaiior.juggernaut.game.JuggernautServer;
+import github.kawaiior.juggernaut.game.Constants;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -58,8 +58,8 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
         this.generateSpawnHome(x, z, chunk);
     }
 
-    private static final int JUGGERNAUT_CHUNK_X = JuggernautServer.GAME_PLAYGROUND_X_WIDTH / 32;
-    private static final int JUGGERNAUT_CHUNK_Z = JuggernautServer.GAME_PLAYGROUND_Z_WIDTH / 32;
+    private static final int JUGGERNAUT_CHUNK_X = Constants.GAME_PLAYGROUND_X_WIDTH / 32;
+    private static final int JUGGERNAUT_CHUNK_Z = Constants.GAME_PLAYGROUND_Z_WIDTH / 32;
     private void generateJuggernautSpawnHome(IChunk chunk){
         if (chunk.getPos().x != JUGGERNAUT_CHUNK_X || chunk.getPos().z != JUGGERNAUT_CHUNK_Z) {
             return;
@@ -82,10 +82,10 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
         }
     }
 
-    private static final int SPAWN_HOME_START_X = JuggernautServer.SPAWN_HOME_POS.getX();
-    private static final int SPAWN_HOME_START_Z = JuggernautServer.SPAWN_HOME_POS.getZ();
-    private static final int SPAWN_HOME_END_X = SPAWN_HOME_START_X + JuggernautServer.SPAWN_HOME_X_WIDTH;
-    private static final int SPAWN_HOME_END_Z = SPAWN_HOME_START_Z + JuggernautServer.SPAWN_HOME_Z_WIDTH;
+    private static final int SPAWN_HOME_START_X = Constants.SPAWN_HOME_POS.getX();
+    private static final int SPAWN_HOME_START_Z = Constants.SPAWN_HOME_POS.getZ();
+    private static final int SPAWN_HOME_END_X = SPAWN_HOME_START_X + Constants.SPAWN_HOME_X_WIDTH;
+    private static final int SPAWN_HOME_END_Z = SPAWN_HOME_START_Z + Constants.SPAWN_HOME_Z_WIDTH;
     private static final int SPAWN_HOME_HEIGHT = 64;
     private static final BlockState SPAWN_HOME_EDGE_BLOCK = Blocks.GLASS.getDefaultState();
     private void generateSpawnHome(int x, int z, IChunk chunk) {
@@ -97,7 +97,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 chunk.setBlockState(
-                        JuggernautServer.SPAWN_HOME_POS.add(x + i, 0, z + j),
+                        Constants.SPAWN_HOME_POS.add(x + i, 0, z + j),
                         Blocks.QUARTZ_BLOCK.getDefaultState(),
                         false
                 );
@@ -109,7 +109,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < SPAWN_HOME_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.SPAWN_HOME_POS.add(x, j, z + i),
+                            Constants.SPAWN_HOME_POS.add(x, j, z + i),
                             SPAWN_HOME_EDGE_BLOCK,
                             false
                     );
@@ -121,7 +121,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++)
                 for (int j = 1; j < SPAWN_HOME_HEIGHT; j++)
                     chunk.setBlockState(
-                            JuggernautServer.SPAWN_HOME_POS.add(x + i, j, z),
+                            Constants.SPAWN_HOME_POS.add(x + i, j, z),
                             SPAWN_HOME_EDGE_BLOCK,
                             false
                     );
@@ -135,7 +135,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++)
                 for (int j = 1; j < SPAWN_HOME_HEIGHT; j++)
                     chunk.setBlockState(
-                            JuggernautServer.SPAWN_HOME_POS.add(x+15, j, z + i),
+                            Constants.SPAWN_HOME_POS.add(x+15, j, z + i),
                             SPAWN_HOME_EDGE_BLOCK,
                             false
                     );
@@ -145,7 +145,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++)
                 for (int j = 1; j < SPAWN_HOME_HEIGHT; j++)
                     chunk.setBlockState(
-                            JuggernautServer.SPAWN_HOME_POS.add(x + i, j, z+15),
+                            Constants.SPAWN_HOME_POS.add(x + i, j, z+15),
                             SPAWN_HOME_EDGE_BLOCK,
                             false
                     );
@@ -153,10 +153,10 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
 
     }
 
-    private static final int GAME_PLAYGROUND_START_X = JuggernautServer.GAME_PLAYGROUND_POS.getX();
-    private static final int GAME_PLAYGROUND_START_Z = JuggernautServer.GAME_PLAYGROUND_POS.getZ();
-    private static final int GAME_PLAYGROUND_END_X = GAME_PLAYGROUND_START_X + JuggernautServer.GAME_PLAYGROUND_X_WIDTH;
-    private static final int GAME_PLAYGROUND_END_Z = GAME_PLAYGROUND_START_Z + JuggernautServer.GAME_PLAYGROUND_Z_WIDTH;
+    private static final int GAME_PLAYGROUND_START_X = Constants.GAME_PLAYGROUND_POS.getX();
+    private static final int GAME_PLAYGROUND_START_Z = Constants.GAME_PLAYGROUND_POS.getZ();
+    private static final int GAME_PLAYGROUND_END_X = GAME_PLAYGROUND_START_X + Constants.GAME_PLAYGROUND_X_WIDTH;
+    private static final int GAME_PLAYGROUND_END_Z = GAME_PLAYGROUND_START_Z + Constants.GAME_PLAYGROUND_Z_WIDTH;
     private static final int GAME_PLAYGROUND_HEIGHT = 64;
     private static final BlockState GAME_PLAYGROUND_EDGE_BLOCK = Blocks.GLASS.getDefaultState();
     private void generatePlayground(int x, int z, IChunk chunk) {
@@ -168,7 +168,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 chunk.setBlockState(
-                        JuggernautServer.GAME_PLAYGROUND_POS.add(x + i, 0, z + j),
+                        Constants.GAME_PLAYGROUND_POS.add(x + i, 0, z + j),
                         Blocks.QUARTZ_BLOCK.getDefaultState(),
                         false
                 );
@@ -185,7 +185,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < GAME_PLAYGROUND_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_PLAYGROUND_POS.add(x, j, z + i),
+                            Constants.GAME_PLAYGROUND_POS.add(x, j, z + i),
                             GAME_PLAYGROUND_EDGE_BLOCK,
                             false
                     );
@@ -197,7 +197,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < GAME_PLAYGROUND_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_PLAYGROUND_POS.add(x + i, j, z),
+                            Constants.GAME_PLAYGROUND_POS.add(x + i, j, z),
                             GAME_PLAYGROUND_EDGE_BLOCK,
                             false
                     );
@@ -209,7 +209,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < GAME_PLAYGROUND_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_PLAYGROUND_POS.add(x + 15, j, z + i),
+                            Constants.GAME_PLAYGROUND_POS.add(x + 15, j, z + i),
                             GAME_PLAYGROUND_EDGE_BLOCK,
                             false
                     );
@@ -221,7 +221,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < GAME_PLAYGROUND_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_PLAYGROUND_POS.add(x + i, j, z + 15),
+                            Constants.GAME_PLAYGROUND_POS.add(x + i, j, z + 15),
                             GAME_PLAYGROUND_EDGE_BLOCK,
                             false
                     );
@@ -231,10 +231,10 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
 
     }
 
-    private static final int GAME_READY_HOME_START_X = JuggernautServer.GAME_READY_HOME_POS.getX();
-    private static final int GAME_READY_HOME_START_Z = JuggernautServer.GAME_READY_HOME_POS.getZ();
-    private static final int GAME_READY_HOME_END_X = GAME_READY_HOME_START_X + JuggernautServer.GAME_READY_HOME_X_WIDTH;
-    private static final int GAME_READY_HOME_END_Z = GAME_READY_HOME_START_Z + JuggernautServer.GAME_READY_HOME_Z_WIDTH;
+    private static final int GAME_READY_HOME_START_X = Constants.GAME_READY_HOME_POS.getX();
+    private static final int GAME_READY_HOME_START_Z = Constants.GAME_READY_HOME_POS.getZ();
+    private static final int GAME_READY_HOME_END_X = GAME_READY_HOME_START_X + Constants.GAME_READY_HOME_X_WIDTH;
+    private static final int GAME_READY_HOME_END_Z = GAME_READY_HOME_START_Z + Constants.GAME_READY_HOME_Z_WIDTH;
     private static final int READY_HOME_HEIGHT = 64;
     private static final BlockState READY_HOME_EDGE_BLOCK = Blocks.GLASS.getDefaultState();
     private void generateReadyHome(int x, int z, IChunk chunk) {
@@ -246,7 +246,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 chunk.setBlockState(
-                        JuggernautServer.GAME_READY_HOME_POS.add(x + i, 0, z + j),
+                        Constants.GAME_READY_HOME_POS.add(x + i, 0, z + j),
                         Blocks.QUARTZ_BLOCK.getDefaultState(),
                         false
                 );
@@ -257,7 +257,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < READY_HOME_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_READY_HOME_POS.add(x, j, z + i),
+                            Constants.GAME_READY_HOME_POS.add(x, j, z + i),
                             READY_HOME_EDGE_BLOCK,
                             false
                     );
@@ -269,7 +269,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < READY_HOME_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_READY_HOME_POS.add(x + i, j, z),
+                            Constants.GAME_READY_HOME_POS.add(x + i, j, z),
                             READY_HOME_EDGE_BLOCK,
                             false
                     );
@@ -281,7 +281,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < READY_HOME_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_READY_HOME_POS.add(x + 15, j, z + i),
+                            Constants.GAME_READY_HOME_POS.add(x + 15, j, z + i),
                             READY_HOME_EDGE_BLOCK,
                             false
                     );
@@ -293,7 +293,7 @@ public class JuggernautChunkGenerator extends NoiseChunkGenerator {
             for (int i = 0; i < 16; i++) {
                 for (int j = 1; j < READY_HOME_HEIGHT; j++) {
                     chunk.setBlockState(
-                            JuggernautServer.GAME_READY_HOME_POS.add(x + i, j, z + 15),
+                            Constants.GAME_READY_HOME_POS.add(x + i, j, z + 15),
                             READY_HOME_EDGE_BLOCK,
                             false
                     );
