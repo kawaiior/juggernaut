@@ -373,4 +373,8 @@ public class GameServer {
     public PlayerGameData getPlayerGameData(ServerPlayerEntity player){
         return GAME_PLAYER_MAP.get(player);
     }
+
+    public Map<ServerPlayerEntity, PlayerGameData> getGamePlayerMap() {
+        return GAME_PLAYER_MAP;
+    }
 }

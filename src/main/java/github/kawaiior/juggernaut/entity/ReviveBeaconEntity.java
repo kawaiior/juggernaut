@@ -13,9 +13,7 @@ public class ReviveBeaconEntity extends BeaconEntity {
 
     private static final Map<PlayerEntity, ReviveBeaconEntity> map = new ConcurrentHashMap<>();
 
-    private static final int MAX_LIFE = 1000 * 20 * 30; // 30s
-    @Nullable
-    private PlayerEntity owner;
+    private static final int MAX_LIFE = 1000 * 30; // 30s
 
     public ReviveBeaconEntity(EntityType<? extends ReviveBeaconEntity> type, World world) {
         super(type, world);
@@ -31,12 +29,6 @@ public class ReviveBeaconEntity extends BeaconEntity {
     public void setOwner(PlayerEntity owner) {
         this.owner = owner;
         map.put(owner, this);
-    }
-
-    @Nullable
-    @Override
-    public PlayerEntity getOwner() {
-        return owner;
     }
 
     @Override

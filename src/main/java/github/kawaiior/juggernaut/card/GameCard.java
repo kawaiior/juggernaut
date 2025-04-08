@@ -2,6 +2,7 @@ package github.kawaiior.juggernaut.card;
 
 import github.kawaiior.juggernaut.Juggernaut;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import javax.annotation.Nonnull;
@@ -79,9 +80,9 @@ public abstract class GameCard {
         return new TranslationTextComponent("card." + Juggernaut.MOD_ID + "." + cardName);
     }
 
-    public abstract void playerUseSkill(@Nonnull PlayerEntity player, @Nullable PlayerEntity target);
+    public abstract void playerUseSkill(@Nonnull ServerPlayerEntity player, @Nullable ServerPlayerEntity target);
 
-    public abstract void playerUseUltimateSkill(@Nonnull PlayerEntity player, @Nullable PlayerEntity target);
+    public abstract void playerUseUltimateSkill(@Nonnull ServerPlayerEntity player, @Nullable ServerPlayerEntity target);
 
     public abstract void cardTick(@Nonnull PlayerEntity player);
 

@@ -1,16 +1,17 @@
 package github.kawaiior.juggernaut.card;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 public class CardFragrans extends GameCard{
 
     @Override
-    public void playerUseSkill(PlayerEntity player, PlayerEntity target) {
+    public void playerUseSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
 
     }
 
     @Override
-    public void playerUseUltimateSkill(PlayerEntity player, PlayerEntity target) {
+    public void playerUseUltimateSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
 
     }
 

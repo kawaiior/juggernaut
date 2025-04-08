@@ -4,6 +4,7 @@ import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.item.JuggernautItem;
 import github.kawaiior.juggernaut.item.JuggernautReadyItem;
 import github.kawaiior.juggernaut.item.JuggernautShieldItem;
+import github.kawaiior.juggernaut.item.PaintBubbleItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -17,4 +18,6 @@ public class ItemInit {
     public static final RegistryObject<Item> JUGGERNAUT_READY_ITEM = ITEMS.register("juggernaut_ready_item", JuggernautReadyItem::new);
     public static final RegistryObject<Item> JUGGERNAUT_SHIELD_ITEM = ITEMS.register("juggernaut_shield_item", JuggernautShieldItem::new);
 
+
+    public static final RegistryObject<Item> PAINT_BUBBLE_ITEM = ITEMS.register("paint_bubble_item", PaintBubbleItem::new);
 }

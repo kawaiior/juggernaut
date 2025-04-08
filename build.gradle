@@ -150,7 +150,7 @@ dependencies {
     // The group id is ignored when searching -- in this case, it is "blank"
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
     // compileOnly fg.deobf(files('libs/curios-forge-1.16.4-4.0.3.5.jar'))
-    runtimeOnly fg.deobf("blank:lanserverproperties-1.16.5:1.4")
+    // runtimeOnly fg.deobf("blank:lanserverproperties-1.16.5:1.4")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

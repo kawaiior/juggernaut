@@ -3,6 +3,7 @@ package github.kawaiior.juggernaut.render.hud;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import github.kawaiior.juggernaut.Juggernaut;
+import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.game.JuggernautClient;
 import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.client.Minecraft;
@@ -87,7 +88,7 @@ public class GameDataRender extends AbstractGui {
         List<RenderData> renderDataList = new ArrayList<>();
         map.forEach((uuid, data) -> {
             RenderData renderData = new RenderData();
-            renderData.name = data.getPlayerName();
+            renderData.name = data.getPlayerName() + getPlayerCardName(data.getCard(null));
             renderData.jkill = data.getJKillCount();
             renderData.kill = data.getKillCount();
             renderData.death = data.getDeathCount();
@@ -150,5 +151,12 @@ public class GameDataRender extends AbstractGui {
             drawString(matrixStack, minecraft.fontRenderer, font3, posCenter3 - minecraft.fontRenderer.getStringWidth(font3) / 2, height, 0xFFFFFF);
             drawString(matrixStack, minecraft.fontRenderer, font4, posCenter4 - minecraft.fontRenderer.getStringWidth(font4) / 2, height, 0xFFFFFF);
         }
+    }
+
+    public static String getPlayerCardName(GameCard card){
+        if (card == null){
+            return "（NULL）";
+        }
+        return "（" + card.getCardTranslationName().getString() + "）";
     }
 }

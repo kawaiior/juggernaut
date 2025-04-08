@@ -3,12 +3,13 @@ package github.kawaiior.juggernaut.card;
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.entity.ReviveBeaconEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class CardBaiMo extends GameCard{
 
     @Override
-    public void playerUseSkill(PlayerEntity player, PlayerEntity target) {
+    public void playerUseSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
         Juggernaut.debug("玩家使用白墨技能");
         Vector3d velocity = new Vector3d(player.getLookVec().x * 10.0, player.getLookVec().y * 0.2, player.getLookVec().z * 10.0);
         player.setMotion(velocity);
@@ -16,7 +17,7 @@ public class CardBaiMo extends GameCard{
     }
 
     @Override
-    public void playerUseUltimateSkill(PlayerEntity player, PlayerEntity target) {
+    public void playerUseUltimateSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
         ReviveBeaconEntity entity = ReviveBeaconEntity.create(player);
         entity.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
         player.world.addEntity(entity);
