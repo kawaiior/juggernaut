@@ -63,7 +63,7 @@ public abstract class BeaconEntity extends Entity {
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        this.dataManager.set(CREATE_TIME, compound.getInt("counter"));
+        this.dataManager.set(CREATE_TIME, compound.getInt("create_time"));
     }
 
     @Override

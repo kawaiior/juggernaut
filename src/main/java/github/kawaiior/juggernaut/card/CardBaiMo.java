@@ -19,7 +19,7 @@ public class CardBaiMo extends GameCard{
     @Override
     public void playerUseUltimateSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
         ReviveBeaconEntity entity = ReviveBeaconEntity.create(player);
-        entity.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
+        entity.setPosition(player.getPosX(), player.getPosY()+0.1D, player.getPosZ());
         player.world.addEntity(entity);
     }
 

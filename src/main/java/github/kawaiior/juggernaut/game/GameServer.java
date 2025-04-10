@@ -15,6 +15,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -376,5 +377,10 @@ public class GameServer {
 
     public Map<ServerPlayerEntity, PlayerGameData> getGamePlayerMap() {
         return GAME_PLAYER_MAP;
+    }
+
+    @Nullable
+    public ServerPlayerEntity getJuggernautPlayer() {
+        return juggernautPlayer;
     }
 }

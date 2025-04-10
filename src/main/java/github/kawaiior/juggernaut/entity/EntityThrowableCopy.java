@@ -31,7 +31,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 public abstract class EntityThrowableCopy extends ProjectileEntity {
 
-	private boolean hit = false;
+	protected boolean hit = false;
 	private long hitTime = -1;
 	private int tickCount = 0;
 	private Entity owner;

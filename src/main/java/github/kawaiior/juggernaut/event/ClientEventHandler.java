@@ -1,9 +1,7 @@
 package github.kawaiior.juggernaut.event;
 
-import github.kawaiior.juggernaut.entity.render.PaintBubbleRender;
-import github.kawaiior.juggernaut.entity.render.ReviveBeaconRender;
-import github.kawaiior.juggernaut.entity.render.SuperPaintBubbleRender;
-import github.kawaiior.juggernaut.entity.render.WatchBeaconRender;
+import github.kawaiior.juggernaut.entity.SuperWatchBeaconEntity;
+import github.kawaiior.juggernaut.entity.render.*;
 import github.kawaiior.juggernaut.init.EntityTypeRegistry;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +19,8 @@ public class ClientEventHandler {
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.PAINT_BUBBLE_ENTITY.get(), PaintBubbleRender::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.SUPER_PAINT_BUBBLE_ENTITY.get(), SuperPaintBubbleRender::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.WATCH_BEACON_ENTITY.get(), WatchBeaconRender::new);
-
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.SUPER_WATCH_BEACON_ENTITY.get(), SuperWatchBeaconRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityTypeRegistry.ELECTRIC_BALL_ENTITY.get(), ElectricBallRender::new);
     }
 
 }
