@@ -37,6 +37,17 @@ public class RenderUtil {
             glState
     );
 
+    public static final RenderState.TextureState babylonTexture = new RenderState.TextureState(new ResourceLocation(Juggernaut.MOD_ID,
+            "textures/misc/babylon.png"), false, true);
+    public static final RenderType.State glState2 = RenderType.State.getBuilder().texture(babylonTexture)
+				.transparency(TRANSLUCENT_TRANSPARENCY)
+				.target(itemTarget)
+				.cull(disableCull)
+				.shadeModel(smoothShade)
+				.alpha(new RenderState.AlphaState(0.05F))
+            .lightmap(enableLightmap).build(true);
+    public static final RenderType BABYLON_ICON = RenderType.makeType(Juggernaut.MOD_ID + "babylon", DefaultVertexFormats.POSITION_COLOR_TEX, GL11.GL_QUADS, 64, glState2);
+
     public static void renderImageOnEntityRender(IRenderTypeBuffer buffer, Matrix4f mat, RenderType renderType,
                                           float size, float r, float g, float b, float alpha) {
         IVertexBuilder iVertexBuilder = buffer.getBuffer(renderType);

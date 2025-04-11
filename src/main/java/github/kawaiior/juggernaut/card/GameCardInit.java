@@ -37,4 +37,6 @@ public class GameCardInit {
     public static final GameCard FRAGRANS = createGameCard(new CardFragrans(), nextId(), "fragrans", 3,40, 60);
     public static final GameCard XIN = createGameCard(new CardXin(), nextId(), "xin", 2,40, 60);
     public static final GameCard MING = createGameCard(new CardMing(), nextId(), "ming", 1,15, 30);
+    public static final GameCard GILGAMESH = createGameCard(new CardGilgamesh(), nextId(), "gilgamesh", 20,3, 30);
+
 }

@@ -48,4 +48,10 @@ public class EntityTypeRegistry {
                             () -> EntityType.Builder.create(ElectricBallEntity::new,
                                         EntityClassification.MISC).size(4F, 4F)
                                 .build("electric_ball_entity"));
+
+    public static final RegistryObject<EntityType<EntityBabylonWeapon>> BABYLON_WEAPON_ENTITY =
+            ENTITY_TYPES.register("babylon_weapon_entity",
+                    () -> EntityType.Builder.create(EntityBabylonWeapon::new,
+                                    EntityClassification.MISC).size(1F, 1F)
+                            .build("babylon_weapon_entity"));
 }

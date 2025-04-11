@@ -1,5 +1,6 @@
 package github.kawaiior.juggernaut.util;
 
+import github.kawaiior.juggernaut.card.GameCardInit;
 import github.kawaiior.juggernaut.game.Constants;
 import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.game.PlayerGameData;
@@ -26,8 +27,14 @@ public class JuggernautUtil {
         // 设置护甲
         PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(player);
         if (gameData != null ){
+            // 设置card
+            gameData.setLastCardId(gameData.getCardId());
+            gameData.setCardId(GameCardInit.GILGAMESH.getCardId());
+
             gameData.setMaxShield(Constants.JUGGERNAUT_MAX_SHIELD);
             gameData.setShield(gameData.getMaxShield());
+
+            gameData.syncShieldData(player);
             gameData.syncCardData(player);
         }
     }
@@ -41,9 +48,14 @@ public class JuggernautUtil {
         // 移除护甲
         PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(player);
         if (gameData != null){
+            // 重置card
+            gameData.setCardId(gameData.getLastCardId());
+
             gameData.setMaxShield(Constants.PLAYER_MAX_SHIELD);
             gameData.setShield(gameData.getMaxShield());
+
             gameData.syncShieldData(player);
+            gameData.syncCardData(player);
         }
     }
 

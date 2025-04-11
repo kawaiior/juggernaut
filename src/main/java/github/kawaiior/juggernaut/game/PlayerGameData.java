@@ -35,6 +35,8 @@ public class PlayerGameData {
     private long lastUseSkillTime;
     private long lastUseUltimateSkillTime;
     private long chargingFullTime = -1;
+    private int lastCardId = -1;
+    private int nextCardId = -1;
 
     private float shield = 20;
     private float temporaryShield = 0;
@@ -166,8 +168,24 @@ public class PlayerGameData {
         this.chargingFullTime = chargingFullTime;
     }
 
+    public int getLastCardId() {
+        return lastCardId;
+    }
+
+    public void setLastCardId(int lastCardId) {
+        this.lastCardId = lastCardId;
+    }
+
+    public int getNextCardId() {
+        return nextCardId;
+    }
+
+    public void setNextCardId(int nextCardId) {
+        this.nextCardId = nextCardId;
+    }
+
     public void syncCardData(ServerPlayerEntity player){
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
                 new SyncCardDataPacket(
                         this.getCardId(),
                         this.getLastUseSkillTime(),

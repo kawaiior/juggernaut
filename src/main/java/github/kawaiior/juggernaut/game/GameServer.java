@@ -64,8 +64,12 @@ public class GameServer {
 
         GAME_PLAYER_MAP.forEach((serverPlayer, gameData) -> {
 
-            GameCard card = gameData.getCard(serverPlayer);
-            card.reset(serverPlayer);
+            ModifiableAttributeInstance health = serverPlayer.getAttribute(Attributes.MAX_HEALTH);
+            if (health != null) {
+                health.setBaseValue(Constants.PLAYER_MAX_HEALTH);
+            }
+            serverPlayer.setHealth(Constants.PLAYER_MAX_HEALTH);
+
             gameData.setShield(gameData.getMaxShield());
             gameData.resetGameData();
             gameData.resetCardData(serverPlayer);
@@ -103,7 +107,6 @@ public class GameServer {
         GAME_PLAYER_MAP.put(player, gameData);
         // 如果游戏已经开始
         if (this.gameState == GameState.START) {
-            // TODO: 设置玩家血量
             JuggernautUtil.teleportPlayerToPlayground(player);
         } else if (this.gameState == GameState.PREPARE) {
             JuggernautUtil.teleportPlayerToReadyHome(player);
@@ -112,6 +115,7 @@ public class GameServer {
         // 同步数据
         gameData.syncCardData(player);
         gameData.syncShieldData(player);
+
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
             health.setBaseValue(Constants.PLAYER_MAX_HEALTH);
@@ -137,6 +141,10 @@ public class GameServer {
         // 向此玩家发送所有玩家状态
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new SyncAllPlayerGameDataPacket(GAME_PLAYER_MAP));
+        // TODO 向此玩家发送所有玩家的护甲信息
+
+        // TODO 向此玩家发送所有玩家的card信息
+
     }
 
     public void onPlayerHurt(ServerPlayerEntity attacker, ServerPlayerEntity player, float amount) {

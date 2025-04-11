@@ -45,6 +45,7 @@ public class SelectCardGui extends Screen {
         this.buttonList = new ArrayList<>();
         int startX = this.width / 2 + 15;
         int startY = 20;
+
         for (int i = 0; i < GameCardInit.GAME_CARD_ARRAY.size(); i++) {
             GameCard card = GameCardInit.GAME_CARD_ARRAY.get(i);
             ITextComponent component = card.getCardTranslationName();
