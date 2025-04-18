@@ -1,0 +1,14 @@
+{
+	"babylon_attack": { "sounds":["juggernaut:babylonattack"], "subtitle": "juggernaut.subtitle.babylonAttack" },
+	"babylon_spawn": { "sounds":["juggernaut:babylonspawn"], "subtitle": "juggernaut.subtitle.babylonSpawn" },
+
+	"baimo_skill_0": { "sounds":[{"name": "juggernaut:baimo_skill_0", "attenuation_distance": 0}], "subtitle": "juggernaut.subtitle.baimo_skill_0" },
+	"baimo_skill_1": { "sounds":[{"name": "juggernaut:baimo_skill_1", "attenuation_distance": 0}], "subtitle": "juggernaut.subtitle.baimo_skill_1" },
+	"baimo_skill_2": { "sounds":[{"name": "juggernaut:baimo_skill_2", "attenuation_distance": 0}], "subtitle": "juggernaut.subtitle.baimo_skill_2" },
+
+	"baimo_u_0": { "sounds":["juggernaut:baimo_u_0"], "subtitle": "juggernaut.subtitle.baimo_u_0" },
+	"baimo_u_1": { "sounds":["juggernaut:baimo_u_1"], "subtitle": "juggernaut.subtitle.baimo_u_1" },
+	"baimo_u_2": { "sounds":["juggernaut:baimo_u_2"], "subtitle": "juggernaut.subtitle.baimo_u_2" },
+	"baimo_u_3": { "sounds":["juggernaut:baimo_u_3"], "subtitle": "juggernaut.subtitle.baimo_u_3" },
+	"baimo_u_4": { "sounds":["juggernaut:baimo_u_4"], "subtitle": "juggernaut.subtitle.baimo_u_4" }
+}

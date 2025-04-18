@@ -20,7 +20,7 @@ public class Constants {
 
     public static final BlockPos SPAWN_POS = new BlockPos(-15, 66, -15);
     public static final BlockPos JUGGERNAUT_POS = new BlockPos(128, 66, 128);
-    public static final BlockPos READY_HOME_POS = new BlockPos(-255, 66, -255);
+    public static final BlockPos READY_HOME_POS = new BlockPos(233, 13, -573);
     public static final long GAME_MAX_TIME = 1000 * 60 * 2; // 10分钟
     public static final int GAME_PREPARE_TIME = 1000 * 15;  // 60秒
     public static final int GAME_OVER_TIME = 1000 * 15;  // 60秒

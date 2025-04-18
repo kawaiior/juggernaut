@@ -1,8 +1,8 @@
 package github.kawaiior.juggernaut.network.packet;
 
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -64,8 +64,8 @@ public class PlayerUseSkillRequestPacket {
             return;
         }
 
-        PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(player);
-        GameCard card = gameData.getCard(player);
+        GameData gameData = GameServer.getInstance().getPlayerGameData(player);
+        GameCard card = gameData.getCardData().getCard(player);
         if (packet.ultimate){
             if (!gameData.ultimateSkillUsable(player)){
                 return;

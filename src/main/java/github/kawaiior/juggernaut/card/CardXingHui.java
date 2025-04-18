@@ -1,7 +1,7 @@
 package github.kawaiior.juggernaut.card;
 
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 
@@ -15,11 +15,11 @@ public class CardXingHui extends GameCard{
     @Override
     public void playerUseSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
         // 10点临时护甲
-        PlayerGameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
-        PlayerGameData targetGameData = GameServer.getInstance().getPlayerGameData(target);
+        GameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
+        GameData targetGameData = GameServer.getInstance().getPlayerGameData(target);
 
-        playerGameData.setTemporaryShield(playerGameData.getTemporaryShield() + 10);
-        targetGameData.setTemporaryShield(targetGameData.getTemporaryShield() + 10);
+        playerGameData.getShieldData().temporaryShield += 10;
+        targetGameData.getShieldData().temporaryShield += 10;
     }
 
     @Override
@@ -30,11 +30,11 @@ public class CardXingHui extends GameCard{
         player.moveForced(target.getPositionVec());
 
         // 30点临时护甲
-        PlayerGameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
-        PlayerGameData targetGameData = GameServer.getInstance().getPlayerGameData(target);
+        GameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
+        GameData targetGameData = GameServer.getInstance().getPlayerGameData(target);
 
-        playerGameData.setTemporaryShield(playerGameData.getTemporaryShield() + 30);
-        targetGameData.setTemporaryShield(targetGameData.getTemporaryShield() + 30);
+        playerGameData.getShieldData().temporaryShield += 30;
+        targetGameData.getShieldData().temporaryShield += 30;
     }
 
     @Override

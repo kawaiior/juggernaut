@@ -36,6 +36,8 @@ public class NetworkRegistryHandler {
                 SyncPlayerGameDataPacket::decode, SyncPlayerGameDataPacket::handlePacket);
         INSTANCE.registerMessage(nextID(), SyncAllPlayerGameDataPacket.class, SyncAllPlayerGameDataPacket::encode,
                 SyncAllPlayerGameDataPacket::decode, SyncAllPlayerGameDataPacket::handlePacket);
+        INSTANCE.registerMessage(nextID(), PlaySoundPacket.class, PlaySoundPacket::encode,
+                PlaySoundPacket::decode, PlaySoundPacket::handlePacket);
 
 //        INSTANCE.registerMessage(nextID(), PlayerLeftClickPacket.class, PlayerLeftClickPacket::encode,
 //                PlayerLeftClickPacket::decode, PlayerLeftClickPacket::handlePacket);

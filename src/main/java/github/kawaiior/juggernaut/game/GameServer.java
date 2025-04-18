@@ -1,7 +1,6 @@
 package github.kawaiior.juggernaut.game;
 
 import github.kawaiior.juggernaut.Juggernaut;
-import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import github.kawaiior.juggernaut.network.packet.DeathBoardMsgPacket;
 import github.kawaiior.juggernaut.network.packet.GameStatusPacket;
@@ -11,8 +10,8 @@ import github.kawaiior.juggernaut.util.JuggernautUtil;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
@@ -33,8 +32,8 @@ public class GameServer {
     public static GameServer getInstance() {
         return INSTANCE;
     }
-
-    private static final Map<ServerPlayerEntity, PlayerGameData> GAME_PLAYER_MAP = new ConcurrentHashMap<>();
+    private MinecraftServer server = null;
+    private static final Map<ServerPlayerEntity, GameData> GAME_DATA_MAP = new ConcurrentHashMap<>();
     private GameState gameState = GameState.NONE;
     private long gamePrepareTime = -1;
     private long gameStartTime = -1;
@@ -45,10 +44,12 @@ public class GameServer {
         // 所有玩家传送到准备房间
         // 30秒后游戏开始
         // 没有选择角色的玩家将随机选择角色
+        this.juggernautPlayer = null;
         this.gameState = GameState.PREPARE;
         this.gamePrepareTime = System.currentTimeMillis();
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(1, this.gamePrepareTime));
-        GAME_PLAYER_MAP.forEach((serverPlayer, gameData) -> {
+        GAME_DATA_MAP.forEach((serverPlayer, gameData) -> {
+            gameData.getBoardData().reset(serverPlayer);
             JuggernautUtil.teleportPlayerToReadyHome(serverPlayer);
         });
     }
@@ -62,7 +63,7 @@ public class GameServer {
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(2, this.gameStartTime));
         this.juggernautPlayer = null;
 
-        GAME_PLAYER_MAP.forEach((serverPlayer, gameData) -> {
+        GAME_DATA_MAP.forEach((serverPlayer, gameData) -> {
 
             ModifiableAttributeInstance health = serverPlayer.getAttribute(Attributes.MAX_HEALTH);
             if (health != null) {
@@ -70,11 +71,10 @@ public class GameServer {
             }
             serverPlayer.setHealth(Constants.PLAYER_MAX_HEALTH);
 
-            gameData.setShield(gameData.getMaxShield());
-            gameData.resetGameData();
-            gameData.resetCardData(serverPlayer);
-            gameData.syncCardData(serverPlayer);
-            gameData.syncShieldData(serverPlayer);
+            gameData.getShieldData().maxShield = Constants.PLAYER_MAX_SHIELD;
+            gameData.getShieldData().shield = Constants.PLAYER_MAX_SHIELD;
+            gameData.getCardData().reset(serverPlayer);
+            gameData.getShieldData().syncData(serverPlayer);
 
             JuggernautUtil.teleportPlayerToPlayground(serverPlayer);
         });
@@ -88,23 +88,27 @@ public class GameServer {
         // 并将在30秒后传送到准备房间
         this.gameState = GameState.OVER;
         this.gameOverTime = System.currentTimeMillis();
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(3, this.gameOverTime));
+        NetworkRegistryHandler.INSTANCE.send(
+                PacketDistributor.ALL.with(()->null),
+                new GameStatusPacket(3, this.gameOverTime)
+        );
     }
 
     public void gameNone(){
         // 游戏结束
         // 所有玩家回到准备房间
-        GAME_PLAYER_MAP.forEach((serverPlayer, gameData) -> {
+        GAME_DATA_MAP.forEach((serverPlayer, gameData) -> {
             JuggernautUtil.teleportPlayerToReadyHome(serverPlayer);
         });
         this.gameState = GameState.NONE;
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(()->null), new GameStatusPacket(0, this.gameOverTime));
+        NetworkRegistryHandler.INSTANCE.send(
+                PacketDistributor.ALL.with(()->null),
+                new GameStatusPacket(0, this.gameOverTime)
+        );
     }
 
     // 玩家加入游戏
-    public void playerJoinGame(ServerPlayerEntity player) {
-        PlayerGameData gameData = new PlayerGameData(player.getName().getString());
-        GAME_PLAYER_MAP.put(player, gameData);
+    public void playerJoinGame(ServerPlayerEntity player, GameData gameData) {
         // 如果游戏已经开始
         if (this.gameState == GameState.START) {
             JuggernautUtil.teleportPlayerToPlayground(player);
@@ -113,8 +117,8 @@ public class GameServer {
         }
 
         // 同步数据
-        gameData.syncCardData(player);
-        gameData.syncShieldData(player);
+        gameData.getCardData().syncData(player);
+        gameData.getShieldData().syncData(player);
 
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
@@ -136,11 +140,10 @@ public class GameServer {
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new GameStatusPacket(status, time));
         // 向所有玩家发送此玩家的状态
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                new SyncPlayerGameDataPacket(player.getUniqueID(), gameData));
+        gameData.getBoardData().syncData(player);
         // 向此玩家发送所有玩家状态
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                new SyncAllPlayerGameDataPacket(GAME_PLAYER_MAP));
+                new SyncAllPlayerGameDataPacket(GAME_DATA_MAP));
         // TODO 向此玩家发送所有玩家的护甲信息
 
         // TODO 向此玩家发送所有玩家的card信息
@@ -150,19 +153,15 @@ public class GameServer {
     public void onPlayerHurt(ServerPlayerEntity attacker, ServerPlayerEntity player, float amount) {
         Juggernaut.debug("玩家 " + player.getName().getString() + " 受到伤害 " + amount);
         if (attacker != null) {
-            PlayerGameData attackerData = GAME_PLAYER_MAP.get(attacker);
-            attackerData.causeDamage(amount);
-
+            GameData attackerData = GAME_DATA_MAP.get(attacker);
+            attackerData.getBoardData().damageAmount += amount;
             // SYNC GAME DATA
-            NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                    new SyncPlayerGameDataPacket(attacker.getUniqueID(), attackerData));
+            attackerData.getBoardData().syncData(attacker);
         }
-        PlayerGameData playerData = GAME_PLAYER_MAP.get(player);
-        playerData.playerBearDamage(amount);
-
+        GameData playerData = GAME_DATA_MAP.get(player);
+        playerData.getBoardData().bearDamage += amount;
         // SYNC GAME DATA
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                new SyncPlayerGameDataPacket(player.getUniqueID(), playerData));
+        playerData.getBoardData().syncData(player);
     }
 
     public void onPlayerDeath(ServerPlayerEntity killer, ServerPlayerEntity player) {
@@ -177,24 +176,24 @@ public class GameServer {
         }
         NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null), packet);
 
-        PlayerGameData data = GAME_PLAYER_MAP.get(player);
+        GameData data = GAME_DATA_MAP.get(player);
         // 更新计分板
-        data.playerDeath();
+        data.getBoardData().deathCount++;
         if (killer != null) {
-            PlayerGameData killerData = GAME_PLAYER_MAP.get(killer);
+            GameData killerData = GAME_DATA_MAP.get(killer);
             // 更新计分板
-            if (data.isJuggernaut()) {
-                killerData.killJuggernaut();
+            if (data.getBoardData().juggernaut) {
+                killerData.getBoardData().jKillCount++;
                 this.juggernautTransfer(player, killer);
             }else {
-                killerData.killPlayer();
+                killerData.getBoardData().killCount++;
             }
             // SYNC GAME DATA
-            NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                    new SyncPlayerGameDataPacket(killer.getUniqueID(), killerData));
+            killerData.getBoardData().syncData(killer);
         }else {
-            if (data.isJuggernaut()){
+            if (data.getBoardData().juggernaut){
                 Juggernaut.debug("玩家 " + player.getName().getString() + " 死于意外，Juggernaut将被重选");
+                JuggernautUtil.removeJuggernautAttribute(player);
                 this.juggernautPlayer = null;
                 this.choiceJuggernaut();
             }
@@ -205,12 +204,12 @@ public class GameServer {
         this.resetPlayerHealthAndShield(player);
 
         // 重置技能CD
-        data.setChargingFullTime(-1);
-        data.setLastUseSkillTime(-1);
+        data.getCardData().chargingFullTime = -1;
+        data.getCardData().lastUseSkillTime = -1;
 
         // SYNC GAME DATA
-        NetworkRegistryHandler.INSTANCE.send(PacketDistributor.ALL.with(() -> null),
-                new SyncPlayerGameDataPacket(player.getUniqueID(), data));
+        data.getCardData().syncData(player);
+        data.getBoardData().syncData(player);
     }
 
     /**
@@ -222,8 +221,8 @@ public class GameServer {
         }
 
         // 从GAME_PLAYER_MAP中随机挑选一个Player
-        ServerPlayerEntity player = GAME_PLAYER_MAP.keySet().stream()
-                .skip((int) (Math.random() * GAME_PLAYER_MAP.size())).findFirst().orElse(null);
+        ServerPlayerEntity player = GAME_DATA_MAP.keySet().stream()
+                .skip((int) (Math.random() * GAME_DATA_MAP.size())).findFirst().orElse(null);
         if (player == null){
             Juggernaut.debug("没有玩家，无法选择Juggernaut");
             return;
@@ -231,8 +230,8 @@ public class GameServer {
 
         Juggernaut.debug("玩家 " + player.getName().getString() + " 被选为Juggernaut");
         this.juggernautPlayer = player;
-        PlayerGameData data = GAME_PLAYER_MAP.get(player);
-        data.setJuggernaut(true);
+        GameData data = GAME_DATA_MAP.get(player);
+        data.getBoardData().juggernaut = true;
         JuggernautUtil.setJuggernautAttribute(player);
 
         Juggernaut.debug("玩家 " + player.getName().getString() + " 被选为Juggernaut");
@@ -240,7 +239,7 @@ public class GameServer {
         // 网络发包，通知玩家Juggernaut已选择
         String message = "玩家 " + player.getName().getString() + " 被选为Juggernaut";
         new Thread(() -> {
-            for (ServerPlayerEntity _player : GAME_PLAYER_MAP.keySet()) {
+            for (ServerPlayerEntity _player : GAME_DATA_MAP.keySet()) {
                 if (_player.equals(player)){
                     _player.sendStatusMessage(new StringTextComponent("你被选为Juggernaut"), true);
                     continue;
@@ -254,10 +253,10 @@ public class GameServer {
      * 将 Juggernaut 身份转移到击杀者身上
      */
     public void juggernautTransfer(ServerPlayerEntity juggernaut, ServerPlayerEntity killer) {
-        PlayerGameData juggernautData = GAME_PLAYER_MAP.get(juggernaut);
-        juggernautData.setJuggernaut(false);
-        PlayerGameData killerData = GAME_PLAYER_MAP.get(killer);
-        killerData.setJuggernaut(true);
+        GameData juggernautData = GAME_DATA_MAP.get(juggernaut);
+        juggernautData.getBoardData().juggernaut = false;
+        GameData killerData = GAME_DATA_MAP.get(killer);
+        killerData.getBoardData().juggernaut = true;
         this.juggernautPlayer = killer;
         JuggernautUtil.removeJuggernautAttribute(juggernaut);
         JuggernautUtil.setJuggernautAttribute(killer);
@@ -267,81 +266,15 @@ public class GameServer {
         // 网络发包，通知玩家Juggernaut已转移
         String message = "玩家 " + killer.getName().getString() + " 成为新的Juggernaut";
         new Thread(() -> {
-            for (ServerPlayerEntity _player : GAME_PLAYER_MAP.keySet()) {
+            for (ServerPlayerEntity _player : GAME_DATA_MAP.keySet()) {
                 _player.sendStatusMessage(new StringTextComponent(message), true);
             }
         }).start();
     }
 
-    // 遍历玩家列表
-    public void updateWorldPlayers(ServerWorld world){
-        // 遍历MAP，如果玩家不在指定维度，则剔除
-        GAME_PLAYER_MAP.forEach((player, gameData) -> {
-            if (player.getEntityWorld().getDimensionKey().getLocation() != world.getDimensionKey().getLocation()) {
-                // TODO: 通知客户端有玩家离开游戏
-                GAME_PLAYER_MAP.remove(player);
-                if (gameData.isJuggernaut()) {
-                    this.juggernautPlayer = null;
-                }
-                Juggernaut.debug("玩家 " + player.getName().getString() + " 不在指定维度，已剔除");
-            } else if (player.hasDisconnected()) {
-                // 玩家掉线
-                GAME_PLAYER_MAP.remove(player);
-                Juggernaut.debug("玩家 " + player.getName().getString() + " 已断开连接，已剔除");
-                if (gameData.isJuggernaut()) {
-                    this.juggernautPlayer = null;
-                }
-            } else if (player.isSpectator() || player.isCreative()) {
-                // 如果玩家是创造模式或旁观者
-                // TODO: 通知客户端有玩家修改游戏模式进而退出游戏
-                GAME_PLAYER_MAP.remove(player);
-                Juggernaut.debug("玩家 " + player.getName().getString() + " 是创造模式或旁观者，已剔除");
-                if (gameData.isJuggernaut()) {
-                    this.juggernautPlayer = null;
-                }
-            }
-        });
+    private long tickCount = 0;
 
-        // 遍历世界玩家，如果不在MAP中，则加入
-        List<ServerPlayerEntity> players = world.getPlayers();
-        players.forEach(player -> {
-            if (!GAME_PLAYER_MAP.containsKey(player)) {
-                if (player.isCreative() || player.isSpectator()){
-                    Juggernaut.debug("玩家 " + player.getName().getString() + " 是创造模式或旁观者，不参与游戏");
-                }else {
-                    this.playerJoinGame(player);
-                    Juggernaut.debug("玩家 " + player.getName().getString() + " 已加入游戏");
-                }
-            }
-        });
-
-        if (this.gameState == GameState.START) {
-            if (this.juggernautPlayer == null) {
-                this.choiceJuggernaut();
-            }
-            if (this.juggernautPlayer == null) {
-                // 没有选出Juggernaut，游戏提前结束
-                this.gameOver();
-            }
-        }
-    }
-
-    /**
-     * 服务端游戏帧
-     */
-    public void tick(ServerWorld world){
-        long gameTime = world.getGameTime();
-        if (gameTime % 20 != 0){
-            return;
-        }
-
-        long timeNow = System.currentTimeMillis();
-
-        // TODO: 按照游戏时间发放对应物资
-
-        // 遍历一遍玩家列表，更新玩家状态
-        this.updateWorldPlayers(world);
-
+    private void tickGameState(long timeNow){
         if (this.gameState == GameState.NONE) {
             return;
         }
@@ -359,7 +292,41 @@ public class GameServer {
                 this.gameNone();
             }
         }
+    }
 
+    public void tick(){
+        tickCount++;
+        List<ServerPlayerEntity> playersView = this.server.getPlayerList().getPlayers();
+        if (tickCount % 20 == 0){
+            long now = System.currentTimeMillis();
+            for (ServerPlayerEntity player : playersView){
+                GameData gameData = this.getPlayerGameData(player);
+                if (gameData == null){
+                    gameData = new GameData();
+                    GAME_DATA_MAP.put(player, gameData);
+                    // 玩家加入游戏
+                    this.playerJoinGame(player, gameData);
+                }else {
+                    // 更新护盾
+                    gameData.shieldTick(player, now);
+                }
+            }
+
+            this.tickGameState(now);
+        }
+    }
+
+    public void onPlayerLoggedIn(ServerPlayerEntity player){
+
+    }
+
+    public void onPlayerLoggedOut(ServerPlayerEntity player){
+        if (this.gameState == GameState.START && this.juggernautPlayer.equals(player)){
+            // Juggernaut 离开游戏
+            this.juggernautPlayer = null;
+            this.choiceJuggernaut();
+        }
+        GAME_DATA_MAP.remove(player);
     }
 
     public GameState getGameState() {
@@ -372,23 +339,32 @@ public class GameServer {
 
     private void resetPlayerHealthAndShield(ServerPlayerEntity player){
         player.setHealth(player.getMaxHealth());
-        PlayerGameData gameData = GAME_PLAYER_MAP.get(player);
+        GameData gameData = GAME_DATA_MAP.get(player);
         if (gameData != null) {
-            gameData.setShield(gameData.getMaxShield());
-            gameData.syncShieldData(player);
+            gameData.getShieldData().shield = gameData.getShieldData().maxShield;
+            gameData.getShieldData().syncData(player);
         }
     }
 
-    public PlayerGameData getPlayerGameData(ServerPlayerEntity player){
-        return GAME_PLAYER_MAP.get(player);
+    public GameData getPlayerGameData(ServerPlayerEntity player){
+        return GAME_DATA_MAP.get(player);
     }
 
-    public Map<ServerPlayerEntity, PlayerGameData> getGamePlayerMap() {
-        return GAME_PLAYER_MAP;
+    public Map<ServerPlayerEntity, GameData> getGamePlayerMap() {
+        return GAME_DATA_MAP;
     }
 
     @Nullable
     public ServerPlayerEntity getJuggernautPlayer() {
         return juggernautPlayer;
     }
+
+    public MinecraftServer getServer() {
+        return server;
+    }
+
+    public void setServer(MinecraftServer server) {
+        this.server = server;
+    }
+
 }

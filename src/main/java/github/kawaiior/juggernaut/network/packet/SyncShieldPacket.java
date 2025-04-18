@@ -1,9 +1,8 @@
 package github.kawaiior.juggernaut.network.packet;
 
 
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
-import github.kawaiior.juggernaut.util.EntityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
@@ -59,10 +58,10 @@ public class SyncShieldPacket {
             return;
         }
 
-        PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
-        gameData.setShield(packet.shield);
-        gameData.setTemporaryShield(packet.temporaryShield);
-        gameData.setMaxShield(packet.maxShield);
+        GameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
+        gameData.getShieldData().shield = packet.shield;
+        gameData.getShieldData().temporaryShield = packet.temporaryShield;
+        gameData.getShieldData().maxShield = packet.maxShield;
     }
 
     public static void onServerCustomPack(SyncShieldPacket packet, NetworkEvent.Context context){

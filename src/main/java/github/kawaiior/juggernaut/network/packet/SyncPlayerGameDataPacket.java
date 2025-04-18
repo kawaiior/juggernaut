@@ -1,8 +1,8 @@
 package github.kawaiior.juggernaut.network.packet;
 
 
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,15 +21,15 @@ public class SyncPlayerGameDataPacket {
     private final float bearDamage;
     private final boolean juggernaut;
 
-    public SyncPlayerGameDataPacket(UUID playerUUID, PlayerGameData gameData) {
+    public SyncPlayerGameDataPacket(UUID playerUUID, String playerName, GameData.BoardData gameData) {
         this.playerUUID = playerUUID;
-        this.playerName = gameData.getPlayerName();
-        this.jKillCount = gameData.getjKillCount();
-        this.killCount = gameData.getKillCount();
-        this.deathCount = gameData.getDeathCount();
-        this.damageAmount = gameData.getDamageAmount();
-        this.bearDamage = gameData.getBearDamage();
-        this.juggernaut = gameData.isJuggernaut();
+        this.playerName = playerName;
+        this.jKillCount = gameData.jKillCount;
+        this.killCount = gameData.killCount;
+        this.deathCount = gameData.deathCount;
+        this.damageAmount = gameData.damageAmount;
+        this.bearDamage = gameData.bearDamage;
+        this.juggernaut = gameData.juggernaut;
     }
 
     public SyncPlayerGameDataPacket(UUID playerUUID, String playerName, int jKillCount, int killCount, int deathCount, float damageAmount, float bearDamage, boolean juggernaut) {
@@ -73,13 +73,14 @@ public class SyncPlayerGameDataPacket {
 
     @OnlyIn(Dist.CLIENT)
     public static void onClientCustomPack(SyncPlayerGameDataPacket packet, NetworkEvent.Context context){
-        PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
-        gameData.setjKillCount(packet.jKillCount);
-        gameData.setKillCount(packet.killCount);
-        gameData.setDeathCount(packet.deathCount);
-        gameData.setDamageAmount(packet.damageAmount);
-        gameData.setBearDamage(packet.bearDamage);
-        gameData.setJuggernaut(packet.juggernaut);
+        GameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
+        gameData.playerName = packet.playerName;
+        gameData.getBoardData().jKillCount = packet.jKillCount;
+        gameData.getBoardData().killCount = packet.killCount;
+        gameData.getBoardData().deathCount = packet.deathCount;
+        gameData.getBoardData().damageAmount = packet.damageAmount;
+        gameData.getBoardData().bearDamage = packet.bearDamage;
+        gameData.getBoardData().juggernaut = packet.juggernaut;
     }
 
     public static void onServerCustomPack(SyncPlayerGameDataPacket packet, NetworkEvent.Context context){

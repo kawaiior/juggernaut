@@ -1,7 +1,7 @@
 package github.kawaiior.juggernaut.entity;
 
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -53,21 +53,21 @@ public class ElectricBallEntity extends EntityThrowableCopy{
         ServerPlayerEntity juggernaut = GameServer.getInstance().getJuggernautPlayer();
         if (juggernaut != null && this.getDistance(juggernaut) <= 5){
             juggernaut.addPotionEffect(new EffectInstance(Effects.SLOWNESS, 100, 0));
-            PlayerGameData gameData = GameServer.getInstance().getPlayerGameData(juggernaut);
+            GameData gameData = GameServer.getInstance().getPlayerGameData(juggernaut);
             // 先判断临时护甲
-            float tempShield = gameData.getTemporaryShield();
+            float tempShield = gameData.getShieldData().temporaryShield;
             if (tempShield > 5){
-                gameData.setTemporaryShield(tempShield - 5);
-                gameData.syncShieldData(juggernaut);
+                gameData.getShieldData().temporaryShield -= 5;
+                gameData.getShieldData().syncData(juggernaut);
             }else {
-                float shield = gameData.getShield();
+                float shield = gameData.getShieldData().shield;
                 if (shield > 0){
                     float nextShield = shield - 5 + tempShield;
                     if (nextShield < 0){
                         nextShield = 0;
                     }
-                    gameData.setShield(nextShield);
-                    gameData.syncShieldData(juggernaut);
+                    gameData.getShieldData().shield = nextShield;
+                    gameData.getShieldData().syncData(juggernaut);
                 }
             }
         }

@@ -1,23 +1,20 @@
 package github.kawaiior.juggernaut.event;
 
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.util.EntityUtil;
 import github.kawaiior.juggernaut.util.JuggernautUtil;
-import github.kawaiior.juggernaut.world.dimension.ModDimensions;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.potion.Effects;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -38,27 +35,18 @@ public class EventListener {
     }
 
     @SubscribeEvent
-    public static void worldEvent(TickEvent.WorldTickEvent event){
-        World world = event.world;
-        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM || event.phase != TickEvent.Phase.END) {
-            return;
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event){
+        PlayerEntity player = event.getPlayer();
+        if (player instanceof ServerPlayerEntity){
+            GameServer.getInstance().onPlayerLoggedIn((ServerPlayerEntity) player);
         }
+    }
 
-        GameServer gameServer = GameServer.getInstance();
-        gameServer.tick((ServerWorld) world);
-
-        // 每秒更新一次护甲
-        if (world.getGameTime() % 20 != 0)  {
-            return;
-        }
-        long now = System.currentTimeMillis();
-        MinecraftServer server = world.getServer();
-        for (ServerPlayerEntity player : server.getPlayerList().getPlayers()){
-            PlayerGameData gameData = gameServer.getPlayerGameData(player);
-            if (gameData == null){
-                continue;
-            }
-            gameData.shieldTick(player, now);
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event){
+        PlayerEntity player = event.getPlayer();
+        if (player instanceof ServerPlayerEntity){
+            GameServer.getInstance().onPlayerLoggedOut((ServerPlayerEntity) player);
         }
     }
 
@@ -70,7 +58,7 @@ public class EventListener {
         }
 
         World world = entity.world;
-        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM) {
+        if (world.isRemote) {
             return;
         }
 
@@ -89,35 +77,34 @@ public class EventListener {
             gameServer.onPlayerHurt(null, hurtPlayer, event.getAmount());
         }
 
-        PlayerGameData gameData = gameServer.getPlayerGameData(hurtPlayer);
+        GameData gameData = gameServer.getPlayerGameData(hurtPlayer);
         if (gameData == null){
             return;
         }
 
         // 更新hurt time
-        gameData.setLastHurtTime(System.currentTimeMillis());
+        gameData.getBoardData().lastHurtTime = System.currentTimeMillis();
 
         // 护甲机制
         float amount = event.getAmount();
         // 先消耗临时护甲
-        if (amount < gameData.getTemporaryShield()){
-            gameData.setTemporaryShield(gameData.getTemporaryShield() - amount);
+        if (amount < gameData.getShieldData().temporaryShield){
+            gameData.getShieldData().temporaryShield -= amount;
             event.setAmount(0);
         }else {
-            amount = amount - gameData.getTemporaryShield();
-            gameData.setTemporaryShield(0);
-            float shield = gameData.getShield();
-            if (amount < shield){
-                gameData.setShield(shield - amount);
+            amount = amount - gameData.getShieldData().temporaryShield;
+            gameData.getShieldData().temporaryShield = 0;
+            if (amount < gameData.getShieldData().shield){
+                gameData.getShieldData().shield -= amount;
                 event.setAmount(0);
             }else {
-                gameData.setShield(0);
-                event.setAmount(amount - shield);
+                event.setAmount(amount - gameData.getShieldData().shield);
+                gameData.getShieldData().shield = 0;
             }
         }
 
         // sync
-        gameData.syncShieldData(hurtPlayer);
+        gameData.getShieldData().syncData(hurtPlayer);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -128,7 +115,7 @@ public class EventListener {
         }
 
         World world = entity.world;
-        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM) {
+        if (world.isRemote) {
             return;
         }
 
@@ -140,8 +127,8 @@ public class EventListener {
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity) entity;
 
         // 检查死亡是否被取消
-        PlayerGameData data = gameServer.getPlayerGameData(serverPlayer);
-        GameCard card = data.getCard(serverPlayer);
+        GameData data = gameServer.getPlayerGameData(serverPlayer);
+        GameCard card = data.getCardData().getCard(serverPlayer);
         boolean flag = card.onPlayerDeath(serverPlayer);
         if (flag){
             // 取消死亡
@@ -166,7 +153,7 @@ public class EventListener {
     @SubscribeEvent
     public static void onPlayerBreakBlock(BlockEvent.BreakEvent event){
         World world = event.getPlayer().world;
-        if (world.isRemote() || event.getPlayer().isCreative() || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM){
+        if (world.isRemote() || event.getPlayer().isCreative()){
             return;
         }
 
@@ -182,12 +169,13 @@ public class EventListener {
     @SubscribeEvent
     public static void onExplosion(ExplosionEvent.Detonate event){
         World world = event.getWorld();
-        if (world.isRemote || world.getDimensionKey() != ModDimensions.JUGGERNAUT_DIM){
+        if (world.isRemote){
             return;
         }
 
         // 去除 Material != Material.WOOL 的方块
         event.getAffectedBlocks().removeIf((pos) -> world.getBlockState(pos).getMaterial() != Material.WOOL);
     }
+
 
 }

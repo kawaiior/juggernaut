@@ -1,8 +1,7 @@
 package github.kawaiior.juggernaut.item;
 
-import github.kawaiior.juggernaut.game.Constants;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.init.JuggernautItemGroup;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -35,13 +34,13 @@ public class JuggernautShieldItem extends Item {
         }
 
         // 护甲+20
-        PlayerGameData gameData = GameServer.getInstance().getPlayerGameData((ServerPlayerEntity) player);
+        GameData gameData = GameServer.getInstance().getPlayerGameData((ServerPlayerEntity) player);
         if (gameData == null){
             return super.onItemRightClick(world, player, hand);
         }
 
-        gameData.setTemporaryShield(gameData.getTemporaryShield() + 20F);
-        gameData.syncShieldData((ServerPlayerEntity) player);
+        gameData.getShieldData().temporaryShield += 20;
+        gameData.getShieldData().syncData((ServerPlayerEntity) player);
 
         ModifiableAttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {

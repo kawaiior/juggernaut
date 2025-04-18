@@ -4,8 +4,8 @@ package github.kawaiior.juggernaut.network.packet;
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.card.GameCardInit;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -68,11 +68,11 @@ public class SyncCardDataPacket {
 
         GameCard card = GameCardInit.getGameCardById(packet.cardId);
         if (card != null){
-            PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
-            gameData.setCardId(packet.cardId);
-            gameData.setLastUseSkillTime(packet.lastUseSkillTime);
-            gameData.setChargingFullTime(packet.chargingFullTime);
-            gameData.setLastUseUltimateSkillTime(packet.lastUseUltimateSkillTime);
+            GameData gameData = JuggernautClient.getInstance().getPlayerData(packet.playerUUID);
+            gameData.getCardData().cardId = packet.cardId;
+            gameData.getCardData().lastUseSkillTime = packet.lastUseSkillTime;
+            gameData.getCardData().chargingFullTime = packet.chargingFullTime;
+            gameData.getCardData().lastUseUltimateSkillTime = packet.lastUseUltimateSkillTime;
         }
     }
 

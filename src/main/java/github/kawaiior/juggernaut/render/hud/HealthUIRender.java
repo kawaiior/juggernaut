@@ -2,8 +2,8 @@ package github.kawaiior.juggernaut.render.hud;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import github.kawaiior.juggernaut.Juggernaut;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
@@ -65,20 +65,20 @@ public class HealthUIRender extends AbstractGui {
         this.blit(matrixStack, 20, baseHeight-43, 0, 48, 240, 24);
         this.blit(matrixStack, 270, baseHeight-43, 0, 96, 24, 24);
 
-        PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
+        GameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
         float trueMaxShield;
-        float trueShield = gameData.getShield() + gameData.getTemporaryShield();
-        if (trueShield > gameData.getMaxShield()){
+        float trueShield = gameData.getShieldData().shield + gameData.getShieldData().temporaryShield;
+        if (trueShield > gameData.getShieldData().maxShield){
             trueMaxShield = trueShield;
         }else {
-            trueMaxShield = gameData.getMaxShield();
+            trueMaxShield = gameData.getShieldData().maxShield;
         }
 
-        float shieldPer = gameData.getShield() / trueMaxShield;
+        float shieldPer = gameData.getShieldData().shield / trueMaxShield;
         if (shieldPer < 0){
             shieldPer = 0;
         }
-        float temporaryShieldPer = gameData.getTemporaryShield() / trueMaxShield;
+        float temporaryShieldPer = gameData.getShieldData().temporaryShield / trueMaxShield;
         if (temporaryShieldPer < 0){
             temporaryShieldPer = 0;
         }

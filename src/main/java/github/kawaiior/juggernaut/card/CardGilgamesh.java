@@ -3,10 +3,12 @@ package github.kawaiior.juggernaut.card;
 import github.kawaiior.juggernaut.entity.EntityBabylonWeapon;
 import github.kawaiior.juggernaut.entity.render.RenderBabylonWeapon;
 import github.kawaiior.juggernaut.init.EntityTypeRegistry;
+import github.kawaiior.juggernaut.init.ModSounds;
 import github.kawaiior.juggernaut.util.Vector3;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -20,7 +22,6 @@ public class CardGilgamesh extends GameCard{
 
     private static final Random random = new Random();
     private static int weaponsSpawned = 0;
-    private static final double SPEED = 5D;
 
     @Override
     public void playerUseSkill(@Nonnull ServerPlayerEntity player, @Nullable ServerPlayerEntity target) {
@@ -66,6 +67,7 @@ public class CardGilgamesh extends GameCard{
         entity.setNextMotion(mot);
 
         player.world.addEntity(entity);
+        player.world.playSound(null, entity.getPosX(), entity.getPosY(), entity.getPosZ(), ModSounds.babylonSpawn, SoundCategory.PLAYERS, 0.1F, 1F + player.world.rand.nextFloat() * 3F);
 
         weaponsSpawned++;
         if (weaponsSpawned > 5){
@@ -120,6 +122,7 @@ public class CardGilgamesh extends GameCard{
             player.world.addEntity(entity);
         }
 
+        player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), ModSounds.babylonSpawn, SoundCategory.PLAYERS, 0.1F, 1F + player.world.rand.nextFloat() * 3F);
     }
 
     @Override

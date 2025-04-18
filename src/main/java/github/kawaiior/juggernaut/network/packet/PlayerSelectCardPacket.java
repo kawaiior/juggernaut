@@ -3,9 +3,9 @@ package github.kawaiior.juggernaut.network.packet;
 
 import github.kawaiior.juggernaut.card.GameCard;
 import github.kawaiior.juggernaut.card.GameCardInit;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -60,7 +60,7 @@ public class PlayerSelectCardPacket {
         if (card == null){
             message = "切换角色失败";
         }else {
-            JuggernautClient.getInstance().getPlayerData(player.getUniqueID()).setCardId(card.getCardId());
+            JuggernautClient.getInstance().getPlayerData(player.getUniqueID()).getCardData().cardId = card.getCardId();
             message = "已切换角色为: " + card.getCardTranslationName().getString();
         }
 
@@ -90,15 +90,15 @@ public class PlayerSelectCardPacket {
             return;
         }
 
-        PlayerGameData gameData = gameServer.getPlayerGameData(player);
+        GameData gameData = gameServer.getPlayerGameData(player);
         if (gameData != null){
-            gameData.resetCardData(player);
-            gameData.setCardId(packet.cardId);
+            gameData.getCardData().reset(player);
+            gameData.getCardData().cardId = packet.cardId;
 
             NetworkRegistryHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                    new PlayerSelectCardPacket(gameData.getCardId()));
+                    new PlayerSelectCardPacket(packet.cardId));
 
-            gameData.syncCardData(player);
+            gameData.getCardData().syncData(player);
         }
     }
 }

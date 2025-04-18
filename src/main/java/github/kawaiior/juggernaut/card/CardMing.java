@@ -1,9 +1,8 @@
 package github.kawaiior.juggernaut.card;
 
 import github.kawaiior.juggernaut.entity.ElectricBallEntity;
-import github.kawaiior.juggernaut.entity.PaintBubbleEntity;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.GameServer;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.init.EntityTypeRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -22,8 +21,12 @@ public class CardMing extends GameCard{
     @Override
     public void playerUseUltimateSkill(ServerPlayerEntity player, ServerPlayerEntity target) {
         // 50点临时护甲
-        PlayerGameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
-        playerGameData.setTemporaryShield(playerGameData.getTemporaryShield() + 50);
+        GameData playerGameData = GameServer.getInstance().getPlayerGameData(player);
+        if (playerGameData.getShieldData().temporaryShield < 40){
+            playerGameData.getShieldData().temporaryShield = 50;
+        }else {
+            playerGameData.getShieldData().temporaryShield += 10;
+        }
     }
 
     @Override

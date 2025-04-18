@@ -3,8 +3,8 @@ package github.kawaiior.juggernaut.render.hud;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,9 +30,9 @@ public class SkillChargingUIRender extends AbstractGui {
         if (player == null || player.isCreative() || player.isSpectator()){
             return;
         }
-        PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
+        GameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
 
-        GameCard card = gameData.getCard(null);
+        GameCard card = gameData.getCardData().getCard(null);
         if (card == null){
             // 未选择角色
             drawString(matrixStack, minecraft.fontRenderer, "按下`H`键选择角色", width-80, this.height-20, 0xFFFFFF);
@@ -40,7 +40,7 @@ public class SkillChargingUIRender extends AbstractGui {
         }
 
         int skillFullCoolDown = card.getSkillCoolDown() * card.getSkillUseCount();
-        long firstUseSkillTime = gameData.getChargingFullTime() - skillFullCoolDown;
+        long firstUseSkillTime = gameData.getCardData().chargingFullTime - skillFullCoolDown;
         long timeLeft = now - firstUseSkillTime;
         boolean skillChargingCompleted = gameData.skillUsable(null);
         float skillChargingPer;
@@ -50,7 +50,7 @@ public class SkillChargingUIRender extends AbstractGui {
             skillChargingPer = (float) timeLeft / skillFullCoolDown;
         }
 
-        long timeLeftUltimate = now - gameData.getLastUseUltimateSkillTime();
+        long timeLeftUltimate = now - gameData.getCardData().lastUseUltimateSkillTime;
         float ultimateSkillChargingPer;
         boolean ultimateSkillChargingCompleted = false;
         if (timeLeftUltimate > card.getUltimateSkillCoolDown()){

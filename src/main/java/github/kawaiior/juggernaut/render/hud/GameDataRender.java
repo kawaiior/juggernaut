@@ -4,8 +4,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.AbstractGui;
@@ -84,18 +84,18 @@ public class GameDataRender extends AbstractGui {
         GlStateManager.popMatrix();
 
         // handle map
-        Map<UUID, PlayerGameData> map = JuggernautClient.getInstance().getPlayerDataMap();
+        Map<UUID, GameData> map = JuggernautClient.getInstance().getPlayerDataMap();
         List<RenderData> renderDataList = new ArrayList<>();
         map.forEach((uuid, data) -> {
             RenderData renderData = new RenderData();
-            renderData.name = data.getPlayerName() + getPlayerCardName(data.getCard(null));
-            renderData.jkill = data.getJKillCount();
-            renderData.kill = data.getKillCount();
-            renderData.death = data.getDeathCount();
-            renderData.damage = (int) data.getDamageAmount();
-            renderData.damageBear = (int) data.getBearDamage();
+            renderData.name = data.playerName + getPlayerCardName(data.getCardData().getCard(null));
+            renderData.jkill = data.getBoardData().jKillCount;
+            renderData.kill = data.getBoardData().killCount;
+            renderData.death = data.getBoardData().deathCount;
+            renderData.damage = (int) data.getBoardData().damageAmount;
+            renderData.damageBear = (int) data.getBoardData().bearDamage;
             renderData.self = uuid.equals(player.getUniqueID());
-            renderData.juggernaut = data.isJuggernaut();
+            renderData.juggernaut = data.getBoardData().juggernaut;
             NetworkPlayerInfo info = player.connection.getPlayerInfo(uuid);
             if (info != null){
                 renderData.ping = info.getResponseTime();

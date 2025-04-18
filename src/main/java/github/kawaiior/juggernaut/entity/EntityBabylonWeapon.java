@@ -8,6 +8,7 @@
  */
 package github.kawaiior.juggernaut.entity;
 
+import github.kawaiior.juggernaut.init.ModSounds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -17,6 +18,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -90,16 +92,12 @@ public class EntityBabylonWeapon extends EntityThrowableCopy {
 
 			int chargeTime = getChargeTicks();
 			setChargeTicks(chargeTime + 1);
-
-//			if (world.rand.nextInt(20) == 0) {
-//				world.playSound(null, getPosX(), getPosY(), getPosZ(), ModSounds.babylonSpawn, SoundCategory.PLAYERS, 0.1F, 1F + world.rand.nextFloat() * 3F);
-//			}
 		} else {
 			if (liveTime < delay) {
 				setMotion(Vector3d.ZERO);
 			} else if (liveTime == delay && player != null) {
 				mot = getNextMotion();
-				// world.playSound(null, getPosX(), getPosY(), getPosZ(), ModSounds.babylonAttack, SoundCategory.PLAYERS, 2F, 0.1F + world.rand.nextFloat() * 3F);
+				world.playSound(null, getPosX(), getPosY(), getPosZ(), ModSounds.babylonAttack, SoundCategory.PLAYERS, 2F, 0.1F + world.rand.nextFloat() * 3F);
 			}
 
 			if (!world.isRemote) {
@@ -144,7 +142,11 @@ public class EntityBabylonWeapon extends EntityThrowableCopy {
 	protected void onImpact(RayTraceResult pos) {
 		Entity thrower = getOwner();
 		if (pos.getType() != RayTraceResult.Type.ENTITY || ((EntityRayTraceResult) pos).getEntity() != thrower) {
-			world.createExplosion(this, getPosX(), getPosY(), getPosZ(), 3F, Explosion.Mode.NONE);
+			if (thrower!=null){
+				world.createExplosion(thrower, getPosX(), getPosY(), getPosZ(), 3F, Explosion.Mode.NONE);
+			}else {
+				world.createExplosion(this, getPosX(), getPosY(), getPosZ(), 3F, Explosion.Mode.NONE);
+			}
 			remove();
 		}
 	}

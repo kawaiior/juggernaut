@@ -2,10 +2,9 @@ package github.kawaiior.juggernaut.init;
 
 import github.kawaiior.juggernaut.Juggernaut;
 import github.kawaiior.juggernaut.card.GameCard;
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import github.kawaiior.juggernaut.network.NetworkRegistryHandler;
-import github.kawaiior.juggernaut.network.packet.PlayerSelectCardPacket;
 import github.kawaiior.juggernaut.network.packet.PlayerUseSkillRequestPacket;
 import github.kawaiior.juggernaut.render.gui.SelectCardGui;
 import github.kawaiior.juggernaut.render.hud.GameDataRender;
@@ -61,14 +60,14 @@ public class KeyBoardInput {
             DistExecutor.safeCallWhenOn(Dist.CLIENT, () -> SelectCardGui.OpenSelectCardGui::new);
         }
         if (PLAYER_USE_SKILL.isPressed())  {
-            PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
-            GameCard card = gameData.getCard(null);
+            GameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
+            GameCard card = gameData.getCardData().getCard(null);
             if (card == null){
                 player.sendStatusMessage(new StringTextComponent("未选择角色"), false);
                 return;
             }
             if (!gameData.skillUsable(null)){
-                player.sendStatusMessage(new StringTextComponent("技能冷却中"), false);
+                // player.sendStatusMessage(new StringTextComponent("技能冷却中"), false);
                 return;
             }
             Juggernaut.debug("玩家使用技能");
@@ -76,14 +75,14 @@ public class KeyBoardInput {
                     new PlayerUseSkillRequestPacket(false, false, null));
         }
         if (PLAYER_USE_ULTIMATE_SKILL.isPressed()) {
-            PlayerGameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
-            GameCard card = gameData.getCard(null);
+            GameData gameData = JuggernautClient.getInstance().getPlayerData(player.getUniqueID());
+            GameCard card = gameData.getCardData().getCard(null);
             if (card == null){
                 player.sendStatusMessage(new StringTextComponent("未选择角色"), false);
                 return;
             }
             if (!gameData.ultimateSkillUsable(null)){
-                player.sendStatusMessage(new StringTextComponent("终极技能冷却中"), false);
+                // player.sendStatusMessage(new StringTextComponent("终极技能冷却中"), false);
                 return;
             }
             Juggernaut.debug("玩家使用终极技能");

@@ -15,7 +15,7 @@ public class CardFragrans extends GameCard{
         GameServer.getInstance().getGamePlayerMap().forEach((thatPlayer, gameData) -> {
             if (player.equals(thatPlayer)){
                 player.addPotionEffect(new EffectInstance(Effects.REGENERATION, 20 * 20, 0));
-            } else if (player.getDistance(thatPlayer) <= 10 && !gameData.isJuggernaut())  {
+            } else if (player.getDistance(thatPlayer) <= 10 && !gameData.getBoardData().juggernaut)  {
                 thatPlayer.addPotionEffect(new EffectInstance(Effects.REGENERATION, 20 * 20, 0));
             }
         });

@@ -1,8 +1,8 @@
 package github.kawaiior.juggernaut.network.packet;
 
 
+import github.kawaiior.juggernaut.game.GameData;
 import github.kawaiior.juggernaut.game.JuggernautClient;
-import github.kawaiior.juggernaut.game.PlayerGameData;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 public class SyncAllPlayerGameDataPacket {
 
-    public static class GameData{
+    public static class ThisGameData{
         public UUID playerUUID;
         public String playerName;
         public int jKillCount;
@@ -28,25 +28,25 @@ public class SyncAllPlayerGameDataPacket {
         public boolean juggernaut;
     }
 
-    private final List<GameData> gameDataList;
+    private final List<ThisGameData> gameDataList;
 
-    public SyncAllPlayerGameDataPacket(Map<ServerPlayerEntity, PlayerGameData> map) {
+    public SyncAllPlayerGameDataPacket(Map<ServerPlayerEntity, GameData> map) {
         this.gameDataList = new ArrayList<>();
         map.forEach((player, playerGameData) -> {
-            GameData gameData = new GameData();
+            ThisGameData gameData = new ThisGameData();
             gameData.playerUUID = player.getUniqueID();
             gameData.playerName = player.getScoreboardName();
-            gameData.jKillCount = playerGameData.getjKillCount();
-            gameData.killCount = playerGameData.getKillCount();
-            gameData.deathCount = playerGameData.getDeathCount();
-            gameData.damageAmount = playerGameData.getDamageAmount();
-            gameData.bearDamage = playerGameData.getBearDamage();
-            gameData.juggernaut = playerGameData.isJuggernaut();
+            gameData.jKillCount = playerGameData.getBoardData().jKillCount;
+            gameData.killCount = playerGameData.getBoardData().killCount;
+            gameData.deathCount = playerGameData.getBoardData().deathCount;
+            gameData.damageAmount = playerGameData.getBoardData().damageAmount;
+            gameData.bearDamage = playerGameData.getBoardData().bearDamage;
+            gameData.juggernaut = playerGameData.getBoardData().juggernaut;
             gameDataList.add(gameData);
         });
     }
 
-    public SyncAllPlayerGameDataPacket(List<GameData> gameDataList)  {
+    public SyncAllPlayerGameDataPacket(List<ThisGameData> gameDataList)  {
         this.gameDataList = gameDataList;
     }
 
@@ -66,9 +66,9 @@ public class SyncAllPlayerGameDataPacket {
 
     public static SyncAllPlayerGameDataPacket decode(PacketBuffer buffer){
         int size = buffer.readVarInt();
-        List<GameData> gameDataList = new ArrayList<>();
+        List<ThisGameData> gameDataList = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            GameData gameData = new GameData();
+            ThisGameData gameData = new ThisGameData();
             gameData.playerUUID = buffer.readUniqueId();
             gameData.playerName = buffer.readString();
             gameData.jKillCount = buffer.readInt();
@@ -97,16 +97,16 @@ public class SyncAllPlayerGameDataPacket {
 
     @OnlyIn(Dist.CLIENT)
     public static void onClientCustomPack(SyncAllPlayerGameDataPacket packet, NetworkEvent.Context context){
-        List<GameData> gameDataList = packet.gameDataList;
+        List<ThisGameData> gameDataList = packet.gameDataList;
         JuggernautClient client = JuggernautClient.getInstance();
-        for (GameData gameData : gameDataList) {
-            PlayerGameData playerGameData = client.getPlayerData(gameData.playerUUID);
-            playerGameData.setjKillCount(gameData.jKillCount);
-            playerGameData.setKillCount(gameData.killCount);
-            playerGameData.setDeathCount(gameData.deathCount);
-            playerGameData.setDamageAmount(gameData.damageAmount);
-            playerGameData.setBearDamage(gameData.bearDamage);
-            playerGameData.setJuggernaut(gameData.juggernaut);
+        for (ThisGameData gameData : gameDataList) {
+            GameData playerGameData = client.getPlayerData(gameData.playerUUID);
+            playerGameData.getBoardData().jKillCount = gameData.jKillCount;
+            playerGameData.getBoardData().killCount = gameData.killCount;
+            playerGameData.getBoardData().deathCount = gameData.deathCount;
+            playerGameData.getBoardData().damageAmount = gameData.damageAmount;
+            playerGameData.getBoardData().bearDamage = gameData.bearDamage;
+            playerGameData.getBoardData().juggernaut = gameData.juggernaut;
         }
     }
 
